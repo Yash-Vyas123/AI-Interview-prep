@@ -1,0 +1,121 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* NEW: nicer background */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Center main app and remove white strip full-height */
+.app-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Card section wrapper for each page */
+.section {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+/* Headings */
+h1 {
+  margin-bottom: 16px;
+}
+
+/* Buttons with hover effect */
+button {
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  margin-top: 8px;
+  margin-bottom: 16px; /* NEW: space below Start Quiz */
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+
+button:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Inputs */
+input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Utility spacing */
+.mt-3 {
+  margin-top: 12px;
+}
+
+/* Quiz cards */
+.quiz-card {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafbfc;
+  transition: all 0.2s ease;
+  text-align: left; /* NEW: left-align content inside cards */
+}
+
+
+.quiz-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* Feedback box */
+.bg-blue-50 {
+  background-color: #eff6ff;
+}
+
+.border {
+  border: 1px solid #e5e7eb;
+}
+
+.rounded {
+  border-radius: 6px;
+}
+
+/* Error card */
+.error-card {
+  border-color: #ef4444;
+  color: #dc2626;
+}
