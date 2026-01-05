@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { startQuiz, submitQuiz, getFeedback } from './api';
+import { startQuiz, submitQuiz, getFeedback, getProfile, deleteQuestion } from './api';
 import ReactMarkdown from 'react-markdown';
 
 function QuizPage() {
@@ -13,13 +13,32 @@ function QuizPage() {
   const [aiError, setAiError] = useState('');
   const [selectedTopic, setSelectedTopic] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('');
+  const [quizMode, setQuizMode] = useState('mixed'); // mixed, mcq, open
 
-  // NEW: timer state — e.g. 300 seconds = 5 minutes
-  const QUIZ_DURATION = 300;
-  const [timeLeft, setTimeLeft] = useState(0); // in seconds
+  // NEW: user-selectable timer (minutes)
+  const [timerMinutes, setTimerMinutes] = useState(5); // default 5 min
+  const [timeLeft, setTimeLeft] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
 
-  // Start quiz + timer
+  // NEW: Track current user for ownership check
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    // Fetch profile to get user ID
+    async function fetchUser() {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const user = await getProfile(token);
+          setCurrentUserId(user._id);
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile', err);
+      }
+    }
+    fetchUser();
+  }, []);
+
   async function handleStartQuiz() {
     try {
       const token = localStorage.getItem('token');
@@ -27,7 +46,12 @@ function QuizPage() {
         topic: selectedTopic,
         difficulty: selectedDifficulty,
         count: 5,
+        quizMode,
       });
+
+      if (!data.questions || data.questions.length === 0) {
+        throw new Error('No questions found for the selected options.');
+      }
 
       setQuizQuestions(data.questions);
       setAnswers({});
@@ -36,20 +60,19 @@ function QuizPage() {
       setResults([]);
       setAiError('');
 
-      // reset and start timer
-      setTimeLeft(QUIZ_DURATION);
+      // use selected minutes instead of fixed 300s
+      setTimeLeft(timerMinutes * 60);
       setTimerRunning(true);
     } catch (err) {
       setScoreMsg(err.message);
     }
   }
 
-  // Timer effect
+
   useEffect(() => {
     if (!timerRunning) return;
     if (timeLeft <= 0) {
       setTimerRunning(false);
-      // auto-submit when time is up
       if (quizQuestions.length > 0) {
         handleSubmitQuiz();
       }
@@ -71,6 +94,18 @@ function QuizPage() {
     return `${m}:${s}`;
   }
 
+  function handleStopQuiz() {
+    if (!window.confirm("Are you sure you want to stop the quiz? All progress will be lost.")) return;
+    setQuizQuestions([]);
+    setAnswers({});
+    setScoreMsg('');
+    setFeedbacks({});
+    setResults([]);
+    setAiError('');
+    setTimerRunning(false);
+    setTimeLeft(0);
+  }
+
   function handleChangeAnswer(qId, value) {
     setAnswers(prev => ({ ...prev, [qId]: value }));
   }
@@ -82,9 +117,8 @@ function QuizPage() {
       setAiLoading(true);
       setAiError('');
       setFeedbacks({});
-      setTimerRunning(false); // stop timer on manual submit
+      setTimerRunning(false);
 
-      // submit quiz and get score
       const payload = quizQuestions.map(q => ({
         questionId: q._id,
         userAnswer: answers[q._id] || '',
@@ -93,7 +127,6 @@ function QuizPage() {
       setScoreMsg(`Your score: ${data.score}`);
       setResults(data.results || []);
 
-      // fetch AI feedback for answered questions
       const newFeedbacks = {};
       for (const q of quizQuestions) {
         const userAnswer = answers[q._id] || '';
@@ -104,6 +137,7 @@ function QuizPage() {
             questionText: q.text,
             userAnswer,
             questionType: q.type || 'DSA',
+            options: q.options && q.options.length > 0 ? q.options : null,
           });
           newFeedbacks[q._id] = fb.feedback;
         } catch (err) {
@@ -120,6 +154,25 @@ function QuizPage() {
     }
   }
 
+  const handleDeleteQuestion = async (questionId) => {
+    if (!window.confirm("Are you sure you want to delete this question?")) return;
+    try {
+      const token = localStorage.getItem('token');
+      await deleteQuestion(token, questionId);
+
+      // Remove from UI
+      setQuizQuestions(prev => prev.filter(q => q._id !== questionId));
+
+      // Optional: Show success logic or just let it disappear
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
+  const submitDisabled =
+    aiLoading || quizQuestions.length === 0 || (!timerRunning && !timeLeft);
+
   return (
     <div className="section">
       <h1>Quiz</h1>
@@ -127,7 +180,12 @@ function QuizPage() {
       {/* Filters row */}
       <div
         className="mt-3"
-        style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}
+        style={{
+          display: 'flex',
+          gap: '12px',
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+        }}
       >
         <div>
           <label
@@ -137,12 +195,13 @@ function QuizPage() {
           </label>
           <select
             value={selectedTopic}
-            onChange={(e) => setSelectedTopic(e.target.value)}
+            onChange={e => setSelectedTopic(e.target.value)}
           >
             <option value="">All</option>
             <option value="DSA">DSA</option>
-            <option value="System Design">System Design</option>
-            <option value="ML">ML</option>
+            <option value="DBMS">DBMS</option>
+            <option value="OOPS">OOPS</option>
+            <option value="Web Development">Web Development</option>
           </select>
         </div>
 
@@ -154,7 +213,7 @@ function QuizPage() {
           </label>
           <select
             value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
+            onChange={e => setSelectedDifficulty(e.target.value)}
           >
             <option value="">All</option>
             <option value="easy">Easy</option>
@@ -162,64 +221,159 @@ function QuizPage() {
             <option value="hard">Hard</option>
           </select>
         </div>
+
+        {/* NEW: Timer selector */}
+        <div>
+          <label
+            style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}
+          >
+            Timer
+          </label>
+          <select
+            value={timerMinutes}
+            onChange={e => setTimerMinutes(Number(e.target.value))}
+          >
+            <option value={5}>5 minutes</option>
+            <option value={10}>10 minutes</option>
+            <option value={15}>15 minutes</option>
+            <option value={20}>20 minutes</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}
+          >
+            Quiz Mode
+          </label>
+          <select
+            value={quizMode}
+            onChange={e => setQuizMode(e.target.value)}
+          >
+            <option value="mixed">Mixed</option>
+            <option value="mcq">Multiple Choice (MCQ)</option>
+            <option value="open">Open-ended (Text)</option>
+          </select>
+        </div>
       </div>
 
-      <button onClick={handleStartQuiz}>Start Quiz</button>
+      <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <button onClick={handleStartQuiz}>Start Quiz</button>
+        {quizQuestions.length > 0 && (
+          <button
+            onClick={handleStopQuiz}
+            style={{ backgroundColor: '#dc2626', border: '1px solid #b91c1c' }}
+          >
+            Stop Quiz
+          </button>
+        )}
+      </div>
+
+      {/* ERROR / STATUS MESSAGES (Always visible) */}
+      {scoreMsg && (
+        <div className="quiz-card mt-3">
+          <strong>{scoreMsg}</strong>
+        </div>
+      )}
+      {aiError && (
+        <div className="quiz-card mt-3 error-card">{aiError}</div>
+      )}
 
       {quizQuestions.length > 0 && (
         <div className="mt-3">
           {/* Timer display */}
-          <div className="quiz-card">
+          <div className="quiz-card info-card">
             <h3>Time left: {formatTime(timeLeft)}</h3>
           </div>
 
-          <h3>Questions:</h3>
+          <h3>Questions</h3>
+
           {quizQuestions.map(q => (
-  <div key={q._id} className="quiz-card">
-    {/* Metadata row */}
-    <div style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '4px' }}>
-      {q.tags && (
-        <span>{q.tags}</span>  // or q.topic if your field name is different
-      )}
-      {q.difficulty && (
-        <span style={{ marginLeft: '8px' }}>
-          • Difficulty: {q.difficulty}
-        </span>
-      )}
-    </div>
+            <div key={q._id} className="quiz-card" style={{ position: 'relative' }}>
+              {/* Delete Button for Owner */}
+              {currentUserId && q.createdBy === currentUserId && (
+                <button
+                  onClick={() => handleDeleteQuestion(q._id)}
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    backgroundColor: '#ef4444',
+                    padding: '4px 8px',
+                    fontSize: '0.8rem',
+                  }}
+                  title="Delete this question"
+                >
+                  Delete
+                </button>
+              )}
 
-    <h4>{q.text}</h4>
-    <input
-      type="text"
-      placeholder="Your answer"
-      value={answers[q._id] || ''}
-      onChange={e => handleChangeAnswer(q._id, e.target.value)}
-      disabled={!timerRunning && !aiLoading}
-    />
+              {/* Metadata row */}
+              <div
+                style={{
+                  fontSize: '0.9rem',
+                  color: '#e5e7eb',
+                  marginBottom: '4px',
+                  paddingRight: '60px' // Make space for delete button
+                }}
+              >
+                {q.tags && (
+                  <span>
+                    {Array.isArray(q.tags) ? q.tags.join(', ') : q.tags}
+                  </span>
+                )}
+                {q.difficulty && (
+                  <span style={{ marginLeft: '8px' }}>
+                    • Difficulty: {q.difficulty}
+                  </span>
+                )}
+              </div>
 
-    {feedbacks[q._id] && (
-      <div className="mt-3 bg-blue-50 border rounded">
-        <strong>Feedback:</strong>
-        <ReactMarkdown>{feedbacks[q._id]}</ReactMarkdown>
-      </div>
-    )}
-  </div>
-))}
+              <h4>{q.text}</h4>
 
+              {q.options && q.options.length > 0 ? (
+                <div className="mt-2">
+                  {q.options.map((opt, idx) => (
+                    <div key={idx} style={{ marginBottom: '8px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name={`q-${q._id}`}
+                          value={opt}
+                          checked={answers[q._id] === opt}
+                          onChange={e => handleChangeAnswer(q._id, e.target.value)}
+                          disabled={!timerRunning && !timeLeft}
+                          style={{ marginRight: '8px', width: 'auto' }}
+                        />
+                        {opt}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Your answer"
+                  value={answers[q._id] || ''}
+                  onChange={e => handleChangeAnswer(q._id, e.target.value)}
+                  disabled={!timerRunning && !timeLeft}
+                />
+              )}
 
-          <button
-            onClick={handleSubmitQuiz}
-            disabled={aiLoading || !timerRunning}
-          >
+              {feedbacks[q._id] && (
+                <div className="mt-3 bg-blue-50 border rounded">
+                  <strong>Feedback:</strong>
+                  <ReactMarkdown>{feedbacks[q._id]}</ReactMarkdown>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button onClick={handleSubmitQuiz} disabled={submitDisabled}>
             {aiLoading ? 'Getting AI feedback...' : 'Submit Quiz'}
           </button>
 
-          {scoreMsg && (
-            <div className="quiz-card mt-3">
-              <strong>{scoreMsg}</strong>
-            </div>
-          )}
-
+          {/* Results section */}
           {results.length > 0 && (
             <div className="quiz-card mt-3">
               <h4>Question results</h4>
@@ -230,12 +384,6 @@ function QuizPage() {
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
-
-          {aiError && (
-            <div className="quiz-card mt-3 error-card">
-              {aiError}
             </div>
           )}
         </div>

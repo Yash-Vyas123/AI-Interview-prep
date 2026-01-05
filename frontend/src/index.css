@@ -1,121 +1,420 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* NEW: nicer background */
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
+/* GEN Z "NEON GLASS" DESIGN SYSTEM */
+
+:root {
+  /* Core Palette - Deep Space & Neon */
+  --bg-deep: #020617;
+  --bg-surface: #0f172a;
+
+  --primary: #8b5cf6;
+  /* Electric Violet */
+  --primary-glow: #7c3aed;
+
+  --secondary: #06b6d4;
+  /* Cyan */
+  --accent-pink: #f472b6;
+  /* Hot Pink */
+  --accent-lime: #a3e635;
+  /* Lime */
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+
+  /* Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.15);
+  --backdrop-blur: 16px;
+
+  /* Spacing & Radius */
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --radius-sm: 12px;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-/* Center main app and remove white strip full-height */
-.app-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-/* Card section wrapper for each page */
-.section {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-  margin-top: 24px;
-  margin-bottom: 24px;
-}
-
-/* Headings */
-h1 {
-  margin-bottom: 16px;
-}
-
-/* Buttons with hover effect */
-button {
-  background: #3b82f6;
-  color: #ffffff;
-  border: none;
-  padding: 8px 16px;
-  margin-top: 8px;
-  margin-bottom: 16px; /* NEW: space below Start Quiz */
-  cursor: pointer;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-
-button:hover:not(:disabled) {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-}
-
-button:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Inputs */
-input {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+/* GLOBAL RESET & TYPOGRAPHY */
+* {
   box-sizing: border-box;
 }
 
-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100vh;
+
+  /* Animated Deep Space Background (Default Dark) */
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
+  background-attachment: fixed;
 }
 
-/* Utility spacing */
-.mt-3 {
-  margin-top: 12px;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.02em;
 }
 
-/* Quiz cards */
-.quiz-card {
-  margin-bottom: 16px;
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fafbfc;
-  transition: all 0.2s ease;
-  text-align: left; /* NEW: left-align content inside cards */
+h1 {
+  font-size: 3rem;
+  background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+p {
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* LAYOUT UTILITIES */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* GLASS PANEL (Replaces .section) */
+.section,
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--backdrop-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle gradient top border for visual pop */
+.section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+  opacity: 0.6;
+}
+
+/* HEADER STYLE */
+.app-header {
+  background: linear-gradient(90deg, #0ea5e9, #22c55e);
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.45);
+  padding: 18px 28px;
+  margin-bottom: 28px;
+  color: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  /* NEW: keep header on top when scrolling */
+  top: 0;
+  z-index: 40;
+  /* NEW: sits above section cards */
+}
+
+.app-header-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  color: #f9fafb;
+  /* solid white for clarity */
+  text-shadow: 0 0 8px rgba(15, 23, 42, 0.6);
+  /* subtle glow against gradient */
+}
+
+/* CARDS (Quiz, History, Etc.) */
+.quiz-card,
+.info-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
 .quiz-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-4px) scale(1.01);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
 }
 
-/* Feedback box */
-.bg-blue-50 {
-  background-color: #eff6ff;
+/* BUTTONS */
+button {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
 }
 
-.border {
-  border: 1px solid #e5e7eb;
+/* Primary Button (Gradient) */
+button {
+  background: linear-gradient(135deg, var(--primary), #6366f1);
+  color: white;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
 }
 
-.rounded {
-  border-radius: 6px;
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
+  filter: brightness(1.1);
 }
 
-/* Error card */
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  background: #334155;
+  color: #64748b;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Danger Button */
+button.btn-danger {
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  box-shadow: none;
+}
+
+button.btn-danger:hover {
+  background: #ef4444;
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+/* FORMS */
+input,
+select,
+textarea {
+  width: 100%;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid #334155;
+  color: white;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.15);
+  background: rgba(2, 6, 23, 0.9);
+}
+
+label {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* UTILS */
+.text-gradient {
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+/* ERROR / SUCCESS UTILS */
 .error-card {
-  border-color: #ef4444;
-  color: #dc2626;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(220, 38, 38, 0.1);
+  color: #fca5a5;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+/* AUTH SPECIFIC */
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.auth-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  padding: 3rem;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.auth-input-group {
+  margin-bottom: 1.5rem;
+}
+
+.auth-card button {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+.auth-title {
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: var(--text-main);
+}
+
+.auth-subtitle {
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ANIMATIONS */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(3600deg);
+  }
+
+  /* Fast spin */
+}
+
+/* Fix spin speed to be more reasonable */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.auth-title {
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: var(--text-main);
+}
+
+.auth-subtitle {
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.auth-label {
+  margin-bottom: 0.5rem;
+  display: block;
+  color: var(--text-muted);
+}
+
+/* FOOTER */
+.app-footer {
+  margin-top: 4rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--glass-border);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.app-footer-copy {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.app-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.app-footer-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.app-footer-link:hover {
+  color: var(--secondary);
 }

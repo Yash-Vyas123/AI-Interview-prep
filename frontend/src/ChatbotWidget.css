@@ -1,0 +1,256 @@
+/* GenZ + Professional Chatbot Theme */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+
+.chatbot-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+.chatbot-window {
+  width: 360px;
+  height: 500px;
+  /* Glassmorphism background */
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(56, 189, 248, 0.1);
+  /* Subtle blue glow */
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chatbot-header {
+  padding: 16px 20px;
+  background: rgba(30, 41, 59, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  /* Gradient text */
+  background: linear-gradient(to right, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* fallback for container bg if text fill fails */
+  background-clip: text;
+  color: transparent;
+  /* if supported */
+}
+
+/* Fix for transparent text needing background on parent to see contrast? 
+   Actually, let's just make the text gradient on a dark bg. */
+.chatbot-header {
+  color: #fff;
+  -webkit-text-fill-color: initial;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.chatbot-header span {
+  background: linear-gradient(90deg, #38bdf8, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+.chatbot-body {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.chatbot-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chatbot-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.chatbot-msg {
+  padding: 10px 16px;
+  border-radius: 14px;
+  max-width: 85%;
+  line-height: 1.5;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease;
+  word-wrap: break-word;
+}
+
+.chatbot-msg-user {
+  align-self: flex-end;
+  /* Vibrant gradient for user */
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+.chatbot-msg-bot {
+  align-self: flex-start;
+  background: rgba(51, 65, 85, 0.5);
+  /* translucent slate */
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom-left-radius: 2px;
+}
+
+.chatbot-typing {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-left: 10px;
+  font-style: italic;
+  animation: fadeIn 0.5s infinite alternate;
+}
+
+.chatbot-input-row {
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chatbot-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.chatbot-input:focus {
+  border-color: #38bdf8;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.chatbot-send-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  /* circle button */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  /* if text */
+}
+
+.chatbot-send-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+}
+
+.chatbot-send-btn:active {
+  transform: scale(0.95);
+}
+
+/* Floating Toggle Button */
+.chatbot-toggle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 10px;
+  /* text size for "AI CHAT" */
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 10001;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.chatbot-toggle:hover {
+  transform: scale(1.1) rotate(-3deg);
+  box-shadow: 0 12px 24px rgba(124, 58, 237, 0.4);
+}
+
+.chatbot-toggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.chatbot-toggle:hover::after {
+  opacity: 1;
+}

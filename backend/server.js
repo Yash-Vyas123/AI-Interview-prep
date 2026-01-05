@@ -5,8 +5,10 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const questionRoutes = require('./routes/questionRoutes');
-const quizRoutes = require('./routes/quizRoutes'); 
+const quizRoutes = require('./routes/quizRoutes');
 const aiRoutes = require('./routes/aiRoutes');// ← new
+const feedbackRoutes = require('./routes/feedbackRoutes');
+
 
 const app = express();
 
@@ -19,6 +21,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/ai', aiRoutes); // ← new
+app.use('/api/feedback', feedbackRoutes);
+
+
 
 app.get('/api/check-auth-route', (req, res) => {
   res.json({ message: 'auth routes are mounted' });

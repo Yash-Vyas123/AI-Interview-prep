@@ -9,7 +9,7 @@ const router = express.Router();
 // POST /api/quizzes/start
 router.post('/start', protect, async (req, res) => {
   try {
-    let { topic, difficulty, count } = req.body;
+    let { topic, difficulty, count, quizMode } = req.body;
 
     // fallback defaults
     count = Number(count) || 5;
@@ -17,11 +17,21 @@ router.post('/start', protect, async (req, res) => {
     // Build dynamic filter
     const query = {};
     if (topic && topic !== '') {
-      // your schema uses `tags` for topic
-      query.tags = topic; // e.g. "DSA", "System Design", "ML"
+      // Use case-insensitive regex to match "dsa", "DSA", "Dsa", etc.
+      query.topic = { $regex: new RegExp(`^${topic}$`, 'i') };
     }
     if (difficulty && difficulty !== '') {
-      query.difficulty = difficulty; // e.g. "easy" | "medium" | "hard"
+      query.difficulty = { $regex: new RegExp(`^${difficulty}$`, 'i') };
+    }
+
+    // quizMode filtering
+    if (quizMode === 'mcq') {
+      query.options = { $exists: true, $not: { $size: 0 } };
+    } else if (quizMode === 'open') {
+      query.$or = [
+        { options: { $exists: false } },
+        { options: { $size: 0 } }
+      ];
     }
 
     // Fetch questions that match filters
@@ -99,5 +109,20 @@ router.get('/history', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// DELETE /api/quizzes/history (reset stats)
+router.delete('/history', protect, async (req, res) => {
+  try {
+    await QuizAttempt.deleteMany({ user: req.user._id });
+    res.json({ message: 'Statistics reset successfully' });
+  } catch (err) {
+    console.error('Reset stats error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// routes/userStats.js (example)
+
+
 
 module.exports = router;

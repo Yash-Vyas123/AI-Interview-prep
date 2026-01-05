@@ -11,7 +11,7 @@ function AdminQuestionsPage() {
     difficulty: 'easy',
   });
   const [message, setMessage] = useState('');
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -62,13 +62,13 @@ function AdminQuestionsPage() {
       <h2>Admin: Add Question</h2>
 
       <div style={{ marginBottom: '16px' }}>
-        <label>Admin JWT token (paste from Postman login):</label>
+        <label>Authentication Token (Auto-filled):</label>
         <br />
         <input
           type="text"
           value={token}
-          onChange={(e) => setToken(e.target.value)}
-          style={{ width: '100%', padding: '8px' }}
+          readOnly
+          style={{ width: '100%', padding: '8px', backgroundColor: '#f3f4f6', color: '#6b7280' }}
         />
       </div>
 

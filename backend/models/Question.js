@@ -8,7 +8,7 @@ const questionSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['dsa', 'behavioral'],
+      enum: ['dsa', 'behavioral', 'oops', 'dbms', 'web development'],
       required: true
     },
     topic: {
@@ -27,6 +27,10 @@ const questionSchema = new mongoose.Schema(
     options: [String],
     correctAnswer: {
       type: String
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
     }
   },
   { timestamps: true }

@@ -16,12 +16,25 @@ router.post('/register', async (req, res) => {
     const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: 'name, email, password required' });
+      return res
+        .status(400)
+        .json({ message: 'Name, email, and password are required' });
+    }
+
+    // Basic email validation
+    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Please provide a valid email address' });
+    }
+
+    // Password strength check (min 6 chars)
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'User with this email already exists' });
     }
 
     const user = await User.create({
@@ -68,9 +81,44 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Example protected route
+// GET /api/auth/profile (current user)
 router.get('/profile', protect, async (req, res) => {
   res.json({ user: req.user });
+});
+
+// PUT /api/auth/profile (update current user profile)
+router.put('/profile', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // allow update of basic profile fields
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.phone = req.body.phone || user.phone;
+    user.avatarUrl = req.body.avatarUrl || user.avatarUrl;
+    user.bio = req.body.bio || user.bio;
+
+    const updated = await user.save();
+
+    res.json({
+      user: {
+        id: updated._id,
+        name: updated.name,
+        email: updated.email,
+        role: updated.role,
+        phone: updated.phone,
+        avatarUrl: updated.avatarUrl,
+        bio: updated.bio,
+      },
+    });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 module.exports = router;

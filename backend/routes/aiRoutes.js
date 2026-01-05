@@ -1,17 +1,12 @@
 const express = require('express');
 const { protect } = require('../middleware/authMiddleware');
-const { GoogleGenerativeAI } = require('@google/generative-ai'); // Gemini SDK [web:110]
+const { GoogleGenerativeAI } = require('@google/generative-ai'); // Gemini SDK [web:146]
 
 const router = express.Router();
 
 // Create Gemini client using env key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// Good options (pick one)
-
 const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-
-
- // fast, cheap [web:16]
 
 // Debug once (safe)
 if (!process.env.GEMINI_API_KEY) {
@@ -20,7 +15,10 @@ if (!process.env.GEMINI_API_KEY) {
   console.log('✅ GEMINI_API_KEY loaded');
 }
 
-// POST /api/ai/feedback
+/**
+ * POST /api/ai/feedback
+ * Existing route – keep as is
+ */
 router.post('/feedback', protect, async (req, res) => {
   try {
     const { questionText, userAnswer, questionType } = req.body;
@@ -31,25 +29,30 @@ router.post('/feedback', protect, async (req, res) => {
       });
     }
 
-  const prompt = `
+    const prompt = `
 You are a professional interview coach.
 
 Question Type: ${questionType || 'DSA / Behavioral'}
 Question: ${questionText}
 Candidate Answer: ${userAnswer}
 
+${req.body.options ? `This is a Multiple Choice Question. The available options were: ${req.body.options.join(', ')}.` : ''}
+
 Return feedback in Markdown with **exactly** this structure:
 
 **Overall**
-- One short sentence
+- One short sentence (mention if the answer is correct or not if it's MCQ)
+
+**Explanation**
+- Provide a detailed explanation of the correct answer. ${req.body.options ? 'Explain why the chosen option is correct and why others are incorrect.' : ''}
 
 **Strengths**
-- 2–3 bullet points
+- 1–2 bullet points about the candidate's logic
 
 **Improvements**
-- 2–3 bullet points
+- 1–2 bullet points for future reference
 
-Keep total under 120 words.
+Keep total under 150 words.
 `;
 
     const result = await model.generateContent(prompt);
@@ -68,6 +71,55 @@ Keep total under 120 words.
     res.status(500).json({
       message: 'AI feedback failed',
       error: error.message || 'Unknown error',
+    });
+  }
+});
+
+/**
+ * NEW: POST /api/ai/chat
+ * For global chatbot widget
+ */
+router.post('/chat', protect, async (req, res) => {
+  try {
+    const { message, history = [] } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'message is required' });
+    }
+
+    // Build multi-turn chat contents
+    const contents = [
+      {
+        role: 'user',
+        parts: [
+          {
+            text:
+              'You are an AI interview coach for an AI Interview Prep web app. ' +
+              'Help with DSA, web development, and interview preparation. ' +
+              'Be concise, give hints first, and keep responses friendly.',
+          },
+        ],
+      },
+      ...history.map((m) => ({
+        role: m.role || (m.from === 'user' ? 'user' : 'model'),
+        parts: [{ text: m.content || m.text }],
+      })),
+      { role: 'user', parts: [{ text: message }] },
+    ];
+
+    const result = await model.generateContent({ contents });
+    const reply = result.response.text().trim();
+
+    if (!reply) {
+      return res.status(500).json({ error: 'Empty response from AI' });
+    }
+
+    res.status(200).json({ reply });
+  } catch (error) {
+    console.error('❌ Gemini chat error:', error);
+    res.status(500).json({
+      error: 'AI chat failed',
+      details: error.message || 'Unknown error',
     });
   }
 });
