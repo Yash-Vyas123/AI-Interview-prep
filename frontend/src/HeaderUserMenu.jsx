@@ -147,6 +147,19 @@ function HeaderUserMenu() {
             <div style={{ fontSize: 11, color: '#9ca3af' }}>{user.email}</div>
           </div>
 
+          {user.role === 'admin' && (
+            <button
+              type="button"
+              onClick={() => {
+                navigate('/admin');
+                setOpen(false);
+              }}
+              style={{ ...menuItemStyle, color: '#f87171' }}
+            >
+              Admin Console
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => {

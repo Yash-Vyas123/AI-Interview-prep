@@ -104,7 +104,7 @@ export async function createQuestion(token, payload) {
 
 
 export async function updateProfile(token, profileData) {
-  const res = await fetch(`${API_BASE}/api/auth/profile`, {
+  const res = await fetch(`${API_URL}/api/auth/profile`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -174,3 +174,109 @@ export async function replyToFeedback(token, id, message) {
   return data;
 }
 
+
+export async function generateRoadmap(token, { targetRole, experienceLevel }) {
+  const res = await fetch(`${API_URL}/api/roadmap/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ targetRole, experienceLevel }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Roadmap generation failed");
+  return data;
+}
+
+export async function getRoadmap(token) {
+  const res = await fetch(`${API_URL}/api/roadmap`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Failed to fetch roadmap");
+  return data;
+}
+
+export async function toggleRoadmapTopic(token, { weekIndex, topicId }) {
+  const res = await fetch(`${API_URL}/api/roadmap/toggle-topic`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ weekIndex, topicId }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Failed to toggle topic");
+  return data;
+}
+
+export async function analyzeResume(token, formData) {
+  const res = await fetch(`${API_URL}/api/resume/analyze`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // Content-Type is inferred for FormData
+    },
+    body: formData,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Resume analysis failed");
+  return data;
+}
+
+export async function getResumeAnalysis(token) {
+  const res = await fetch(`${API_URL}/api/resume`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  return data;
+}
+
+export async function startInterview(token, { jobRole, topic, difficulty }) {
+  const res = await fetch(`${API_URL}/api/interview/start`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ jobRole, topic, difficulty }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to start interview');
+  return data; // { interviewId, question }
+}
+
+export async function submitAnswer(token, interviewId, userAnswer) {
+  const res = await fetch(`${API_URL}/api/interview/${interviewId}/answer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ userAnswer }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to submit answer');
+  return data; // { feedback, nextQuestion }
+}
+
+export async function endInterview(token, interviewId) {
+  const res = await fetch(`${API_URL}/api/interview/${interviewId}/end`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to end interview');
+  return data; // { summary }
+}
+
+export async function getAnalytics(token) {
+  const res = await fetch(`${API_URL}/api/analytics`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to fetch analytics');
+  return data; // { timeline, mastery, insights, stats }
+}

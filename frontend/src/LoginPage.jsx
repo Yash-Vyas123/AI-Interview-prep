@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { login, getProfile } from './api';
 
 function LoginPage({ onSuccess }) {
@@ -23,6 +25,7 @@ function LoginPage({ onSuccess }) {
     try {
       const data = await login(email, password);
       localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
       setMessage('Login successful');
 
       if (onSuccess) onSuccess(); // redirect to /dashboard from index.js
@@ -37,15 +40,35 @@ function LoginPage({ onSuccess }) {
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
-        <h1 className="auth-title">Welcome Back</h1>
-        <p className="auth-subtitle">
-          Log in to practice DSA & behavioral interviews with AI-powered feedback.
-        </p>
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="auth-card"
+      >
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h1 className="auth-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <LogIn className="text-gradient" /> Welcome Back
+          </h1>
+          <p className="auth-subtitle">
+            Log in to practice DSA & behavioral interviews with AI-powered feedback.
+          </p>
+        </motion.div>
 
         <form onSubmit={handleSubmit}>
-          <div className="auth-input-group">
-            <label className="auth-label">Email</label>
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="auth-input-group"
+          >
+            <label className="auth-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Mail size={14} /> Email
+            </label>
             <input
               type="email"
               placeholder="you@example.com"
@@ -53,10 +76,18 @@ function LoginPage({ onSuccess }) {
               onChange={e => setEmail(e.target.value)}
               required
             />
-          </div>
+          </motion.div>
 
-          <div className="auth-input-group" style={{ position: 'relative' }}>
-            <label className="auth-label">Password</label>
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="auth-input-group"
+            style={{ position: 'relative' }}
+          >
+            <label className="auth-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Lock size={14} /> Password
+            </label>
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
@@ -84,39 +115,46 @@ function LoginPage({ onSuccess }) {
               }}
               title={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                  <line x1="1" y1="1" x2="23" y2="23"></line>
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-              )}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
-          </div>
+          </motion.div>
 
           {message && (
-            <p style={{ marginTop: 8, color: message === 'Login successful' ? '#4ade80' : '#f87171', textAlign: 'center' }}>
+            <motion.p
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              style={{ marginTop: 8, color: message === 'Login successful' ? '#4ade80' : '#f87171', textAlign: 'center' }}
+            >
               {message}
-            </p>
+            </motion.p>
           )}
 
-          <button type="submit" disabled={loading}>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            type="submit"
+            disabled={loading}
+          >
             {loading ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                 <div className="spinner" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
                 Logging in...
               </div>
             ) : 'Login'}
-          </button>
+          </motion.button>
         </form>
-        <p style={{ marginTop: '1.5rem', textAlign: 'center', color: '#94a3b8' }}>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          style={{ marginTop: '1.5rem', textAlign: 'center', color: '#94a3b8' }}
+        >
           Don't have an account? <Link to="/register" style={{ color: '#0ea5e9', fontWeight: '500' }}>Register</Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

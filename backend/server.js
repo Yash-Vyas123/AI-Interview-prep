@@ -8,6 +8,11 @@ const questionRoutes = require('./routes/questionRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const aiRoutes = require('./routes/aiRoutes');// ← new
 const feedbackRoutes = require('./routes/feedbackRoutes');
+const roadmapRoutes = require('./routes/roadmapRoutes');
+const resumeRoutes = require('./routes/resumeRoutes');
+const interviewRoutes = require('./routes/interviewRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 
 const app = express();
@@ -22,6 +27,11 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/ai', aiRoutes); // ← new
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/roadmap', roadmapRoutes);
+app.use('/api/resume', resumeRoutes);
+app.use('/api/interview', interviewRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 

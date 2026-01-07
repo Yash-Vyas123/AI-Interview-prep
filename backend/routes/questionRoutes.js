@@ -1,6 +1,6 @@
 const express = require('express');
 const Question = require('../models/Question');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ router.get('/test', (req, res) => {
 });
 
 // POST /api/questions  (admin only)
-router.post('/', protect, admin, async (req, res) => {
+router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
     const { text, type, topic, company, difficulty, options, correctAnswer } =
       req.body;

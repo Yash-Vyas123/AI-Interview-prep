@@ -43,6 +43,7 @@ function RegisterPage() {
         try {
             const data = await register(name, email, password);
             localStorage.setItem('token', data.token);
+            localStorage.setItem('role', data.role);
             setMessage('Registration successful! Redirecting...');
 
             // Verification fetch

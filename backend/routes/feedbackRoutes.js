@@ -1,6 +1,6 @@
 const express = require('express');
 const Feedback = require('../models/Feedback');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -38,12 +38,8 @@ router.post('/', async (req, res) => {
 // @desc    Get all feedback (Admin only)
 // @route   GET /api/feedback
 // @access  Private/Admin
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, authorize('admin', 'mentor'), async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Not authorized as admin' });
-        }
-
         const feedbacks = await Feedback.find({}).sort({ createdAt: -1 });
         res.json(feedbacks);
     } catch (err) {
@@ -55,13 +51,10 @@ router.get('/', protect, async (req, res) => {
 // @desc    Reply to feedback (Admin only)
 // @route   PUT /api/feedback/:id/reply
 // @access  Private/Admin
-router.put('/:id/reply', protect, async (req, res) => {
+router.put('/:id/reply', protect, authorize('admin', 'mentor'), async (req, res) => {
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Not authorized as admin' });
-        }
-
         const { message } = req.body;
+
         if (!message) {
             return res.status(400).json({ message: 'Reply message is required' });
         }

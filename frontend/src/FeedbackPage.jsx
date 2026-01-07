@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { MessageSquare, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { submitFeedback, getProfile } from './api';
 import './index.css';
 
@@ -45,6 +48,15 @@ const FeedbackPage = () => {
         try {
             const response = await submitFeedback(formData);
             setSuccess(response.message || 'Feedback submitted successfully!');
+
+            // Trigger confetti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#8b5cf6', '#06b6d4', '#f472b6', '#a3e635']
+            });
+
             setFormData({
                 ...formData,
                 subject: '',
@@ -59,42 +71,85 @@ const FeedbackPage = () => {
 
     return (
         <div className="app-container">
-            <div className="section">
-                <h1 className="text-gradient">Feedback & Contact Us</h1>
-                <p>We'd love to hear from you! Whether you have a suggestion or found a bug, let us know.</p>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="section"
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem' }}>
+                    <div style={{ padding: '12px', background: 'var(--primary)', borderRadius: '16px', color: 'white' }}>
+                        <MessageSquare size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-gradient" style={{ margin: 0 }}>Feedback</h1>
+                        <p style={{ margin: 0 }}>Help us level up your prep journey.</p>
+                    </div>
+                </div>
 
-                {success && <div className="mt-3" style={{ color: 'var(--accent-lime)', padding: '1rem', background: 'rgba(163, 230, 53, 0.1)', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>{success}</div>}
-                {error && <div className="error-card mt-3" style={{ marginBottom: '1rem' }}>{error}</div>}
+                {success && (
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="mt-3"
+                        style={{
+                            color: 'var(--accent-lime)',
+                            padding: '1.25rem',
+                            background: 'rgba(163, 230, 53, 0.1)',
+                            borderRadius: 'var(--radius-md)',
+                            marginBottom: '1.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            border: '1px solid rgba(163, 230, 53, 0.2)'
+                        }}
+                    >
+                        <CheckCircle size={20} /> {success}
+                    </motion.div>
+                )}
+
+                {error && (
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="error-card mt-3"
+                        style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}
+                    >
+                        <AlertCircle size={20} /> {error}
+                    </motion.div>
+                )}
 
                 <form onSubmit={handleSubmit}>
-                    <div className="auth-input-group">
-                        <label htmlFor="name">Your Name</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="John Doe"
-                            required
-                        />
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                        <div className="auth-input-group">
+                            <label htmlFor="name">Your Name</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="John Doe"
+                                required
+                            />
+                        </div>
+
+                        <div className="auth-input-group">
+                            <label htmlFor="email">Your Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="john@example.com"
+                                required
+                            />
+                        </div>
                     </div>
 
                     <div className="auth-input-group">
-                        <label htmlFor="email">Your Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="john@example.com"
-                            required
-                        />
-                    </div>
-
-                    <div className="auth-input-group">
-                        <label htmlFor="category">Category</label>
+                        <label htmlFor="category">What is this about?</label>
                         <select
                             id="category"
                             name="category"
@@ -115,7 +170,7 @@ const FeedbackPage = () => {
                             name="subject"
                             value={formData.subject}
                             onChange={handleChange}
-                            placeholder="Subject of your message"
+                            placeholder="Brief summary"
                             required
                         />
                     </div>
@@ -127,17 +182,23 @@ const FeedbackPage = () => {
                             name="message"
                             value={formData.message}
                             onChange={handleChange}
-                            placeholder="Tell us what's on your mind..."
+                            placeholder="Tell us what's on your mind... we're listening! 🚀"
                             rows="5"
                             required
                         ></textarea>
                     </div>
 
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Submitting...' : 'Send Message'}
-                    </button>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="submit"
+                        disabled={loading}
+                        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                        {loading ? 'Submitting...' : <><Send size={18} /> Send Message</>}
+                    </motion.button>
                 </form>
-            </div>
+            </motion.div>
         </div>
     );
 };

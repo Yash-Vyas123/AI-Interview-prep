@@ -1,43 +1,63 @@
-# AI Interview Prep 
+# AI Interview Prep 🚀
 
-A full-stack web application designed to help users prepare for technical interviews using AI-driven feedback. The platform offers timed quizzes, MCQ-based assessments, and a professional dashboard to track progress.
+A full-stack web application designed to help users prepare for technical interviews using AI-driven feedback. The platform offers timed quizzes, MCQ-based assessments, audio-visual mock interviews, resume analysis, and a professional analytics dashboard to track progress.
 
-##  Features
+## ✨ Features
 
-- **User Authentication**: Secure Login and Registration system.
-- **AI-Powered Feedback**: Integrated with Google Gemini/OpenAI API to provide detailed feedback on quiz performance.
+### 🛡️ Role-Based Access Control (RBAC)
+- **User Role**: Standard access to quizzes, interviews, and analytics.
+- **Admin Role**: Full access to the **Admin Console** to manage users, content, and system feedback.
+- **Mentor Role**: Specialized dashboard to track and review mentee progress (Coming Soon).
+- **Secure Routes**: Dynamic authorization middleware ensures data security.
+
+### 📊 Analytics & Insights
+- **Progress Dashboard**: Interactive charts visualizing **Accuracy Trends** and **Topic Mastery** (using Recharts).
+- **AI Readiness Score**: Calculate your interview readiness based on performance history.
+- **Personalized Insights**: AI-generated feedback highlighting strengths and areas for improvement.
+
+### 🎤 AI Mock Interview
+- **Voice-Enabled**: Speak your answers using the microphone.
+- **Real-Time AI Feedback**: Get instant analysis on your communication confidence, clarity, and technical accuracy.
+- **Dynamic Questions**: Conversations adapt based on your responses.
+
+### 📄 AI Resume Scanner
+- **PDF Analysis**: Upload your resume to get an instant breakdown.
+- **Role Match Score**: See how well your resume fits your target job description.
+- **Actionable Tips**: Receive specific suggestions to improve your CV.
+
+### 🧠 Core Features
 - **Timed Quizzes**: Interactive quiz experience with real-time countdown.
-- **MCQ Support**: Support for Multiple Choice Questions across various topics (DSA, OOPS, DBMS, Web Dev).
-- **Admin Dashboard**: Comprehensive management interface for questions and user feedback.
-- **User Profiles**: Manage personal details and profile pictures.
-- **AI Chatbot**: Built-in chatbot for instant assistance.
-- **Responsive Design**: Modern, "Neon Glass" aesthetic optimized for all devices.
+- **MCQ Support**: Coverage for DSA, OOPS, DBMS, and Web Dev topics.
+- **AI Chatbot**: Built-in 24/7 assistant for coding queries.
+- **Responsive Design**: Modern "Neon Glass" aesthetic optimized for all devices.
 
-## 🛠️Tech Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: React.js, React Router, CSS3 (Glassmorphism), Axios
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose)
+- **Frontend**: React.js, React Router, Recharts, Framer Motion, Lucide React, Axios
+- **Backend**: Node.js, Express.js, MongoDB (Mongoose), Multer (File Uploads)
 - **AI Integration**: Google Gemini API / OpenAI API
-- **Authentication**: JWT, BCryptJS
+- **Authentication**: JWT (JSON Web Tokens), BCryptJS
 
-## 📂Project Structure
+## 📂 Project Structure
 
 ```text
 AI-Interview-prep/
-├── backend/            # Express server, MongoDB models, and API routes
-│   ├── models/         # Database schemas (User, Question, Quiz, Feedback)
-│   ├── routes/         # API endpoints (Auth, AI, Questions, Quizzes)
-│   ├── middleware/     # Auth and validation middleware
-│   └── server.js       # Entry point for the backend
+├── backend/            # Express server & API
+│   ├── models/         # User, Question, Quiz, Interview, Resume schemas
+│   ├── routes/         # API routes (Auth, Admin, Analytics, etc.)
+│   ├── middleware/     # Auth (Protect, Authorize) & Error handling
+│   └── server.js       # Entry point
 ├── frontend/           # React application
-│   ├── src/            # Components, pages, and assets
-│   │   ├── LoginPage.jsx
-│   │   ├── QuizPage.jsx
+│   ├── src/            
+│   │   ├── components/ # Reusable UI components
+│   │   ├── AdminDashboardPage.jsx
+│   │   ├── AnalyticsPage.jsx
 │   │   ├── DashboardPage.jsx
-│   │   └── ChatbotWidget.jsx
+│   │   ├── MockInterviewPage.jsx
+│   │   ├── ResumePage.jsx
+│   │   └── ...
 │   └── public/         # Static assets
-└── screenshots/        # Project screenshots and demos
+└── screenshots/        # Project demos
 ```
 
 ## 🚀 Getting Started
@@ -67,8 +87,6 @@ AI-Interview-prep/
      MONGO_URI=your_mongodb_uri
      JWT_SECRET=your_jwt_secret
      GEMINI_API_KEY=your_gemini_api_key
-     # OR
-     OPENAI_API_KEY=your_openai_api_key
      ```
    - Start the backend server:
      ```bash
@@ -84,5 +102,3 @@ AI-Interview-prep/
      ```bash
      npm start
      ```
-
-
