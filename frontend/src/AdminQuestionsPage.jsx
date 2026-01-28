@@ -59,8 +59,7 @@ const AdminQuestionsPage = () => {
   }
 
   return (
-    <div className="section">
-      <h1 className="text-gradient">Admin – Add Question</h1>
+    <div className="glass-panel" style={{ margin: 0 }}>
       <p style={{ marginBottom: '24px' }}>
         Add new DSA, OOPS, DBMS, or Web Development questions.
       </p>

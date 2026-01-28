@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password,
-      role: role || 'user',
+      role: 'user', // Always register as 'user' for security
     });
 
     res.status(201).json({

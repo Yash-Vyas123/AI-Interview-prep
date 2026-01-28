@@ -11,7 +11,10 @@ import {
     AlertCircle,
     CheckCircle,
     XCircle,
-    FileText
+    FileText,
+    Briefcase,
+    Brain,
+    Zap
 } from 'lucide-react';
 import { startInterview, submitAnswer, endInterview } from './api';
 
@@ -59,54 +62,161 @@ const MockInterviewPage = () => {
 // --- Subcomponents ---
 
 const SetupView = ({ config, setConfig, onStart }) => (
-    <div className="glass-panel" style={{ maxWidth: '600px', margin: '0 auto', padding: '2.5rem' }}>
-        <h1 className="text-gradient" style={{ textAlign: 'center', marginBottom: '2rem' }}>AI Mock Interview</h1>
+    <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="glass-panel"
+        style={{
+            maxWidth: '620px',
+            margin: '2rem auto',
+            padding: '3rem',
+            position: 'relative',
+            overflow: 'hidden'
+        }}
+    >
+        {/* Abstract Background Decoration */}
+        <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', background: 'var(--primary)', filter: 'blur(80px)', opacity: 0.15, borderRadius: '50%', pointerEvents: 'none' }} />
 
-        <div className="auth-input-group">
-            <label>Target Role</label>
-            <select value={config.jobRole} onChange={(e) => setConfig({ ...config, jobRole: e.target.value })}>
-                <option>Frontend Developer</option>
-                <option>Backend Developer</option>
-                <option>Full-Stack Developer</option>
-                <option>DevOps Engineer</option>
-            </select>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '0.5rem', fontWeight: 900, letterSpacing: '-0.03em' }}>
+                AI Mock Interview
+            </h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>Configure your session and let the AI challenge you.</p>
         </div>
 
-        <div className="auth-input-group">
-            <label>Focus Topic</label>
-            <select value={config.topic} onChange={(e) => setConfig({ ...config, topic: e.target.value })}>
-                <option>React</option>
-                <option>Node.js</option>
-                <option>DSA</option>
-                <option>System Design</option>
-                <option>Behavioral</option>
-            </select>
-        </div>
-
-        <div className="auth-input-group">
-            <label>Difficulty</label>
-            <div style={{ display: 'flex', gap: '10px' }}>
-                {['Easy', 'Medium', 'Hard'].map((level) => (
-                    <button
-                        key={level}
-                        onClick={() => setConfig({ ...config, difficulty: level })}
-                        style={{
-                            flex: 1,
-                            background: config.difficulty === level ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
-                            border: config.difficulty === level ? 'none' : '1px solid var(--glass-border)'
-                        }}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            {/* Target Role */}
+            <div className="setup-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <Briefcase size={16} color="var(--primary)" /> Target Role
+                </label>
+                <div className="custom-select-wrapper">
+                    <select
+                        value={config.jobRole}
+                        onChange={(e) => setConfig({ ...config, jobRole: e.target.value })}
+                        style={setupInputStyle}
                     >
-                        {level}
-                    </button>
-                ))}
+                        <option>Frontend Developer</option>
+                        <option>Backend Developer</option>
+                        <option>Full-Stack Developer</option>
+                        <option>DevOps Engineer</option>
+                        <option>Data Scientist</option>
+                        <option>Software Engineer (Generic)</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* Focus Topic */}
+            <div className="setup-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <Brain size={16} color="var(--secondary)" /> Focus Topic
+                </label>
+                <div className="custom-select-wrapper">
+                    <select
+                        value={config.topic}
+                        onChange={(e) => setConfig({ ...config, topic: e.target.value })}
+                        style={setupInputStyle}
+                    >
+                        <option>React & Core Frontend</option>
+                        <option>Node.js & System Design</option>
+                        <option>Data Structures & Algorithms</option>
+                        <option>Database (SQL/NoSQL)</option>
+                        <option>Behavioral & Soft Skills</option>
+                        <option>Cloud & DevOps Architecture</option>
+                    </select>
+                </div>
+            </div>
+
+            {/* Difficulty */}
+            <div className="setup-group">
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <Zap size={16} color="var(--accent-lime)" /> Challenge Level
+                </label>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    {['Easy', 'Medium', 'Hard'].map((level) => (
+                        <motion.button
+                            key={level}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setConfig({ ...config, difficulty: level })}
+                            style={{
+                                flex: 1,
+                                height: '50px',
+                                borderRadius: '14px',
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                letterSpacing: '0.05em',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                background: config.difficulty === level
+                                    ? `linear-gradient(135deg, ${level === 'Easy' ? '#10b981' : level === 'Medium' ? 'var(--primary)' : '#f43f5e'}, ${level === 'Easy' ? '#059669' : level === 'Medium' ? 'var(--secondary)' : '#e11d48'})`
+                                    : 'rgba(255, 255, 255, 0.03)',
+                                border: config.difficulty === level ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
+                                color: config.difficulty === level ? 'white' : 'var(--text-muted)',
+                                boxShadow: config.difficulty === level ? '0 10px 20px -5px rgba(0,0,0,0.3)' : 'none'
+                            }}
+                        >
+                            {level.toUpperCase()}
+                        </motion.button>
+                    ))}
+                </div>
             </div>
         </div>
 
-        <button onClick={onStart} style={{ width: '100%', marginTop: '1rem' }} className="glow-on-hover">
-            <Play size={20} style={{ marginRight: '8px' }} /> Start Interview
-        </button>
-    </div>
+        <motion.button
+            whileHover={{ scale: 1.02, boxShadow: '0 20px 40px rgba(139, 92, 246, 0.4)' }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onStart}
+            style={{
+                width: '100%',
+                marginTop: '3.5rem',
+                height: '64px',
+                fontSize: '1.2rem',
+                fontWeight: 800,
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px'
+            }}
+        >
+            <Play size={24} fill="white" /> START JOURNEY
+        </motion.button>
+
+        <style>{`
+            .custom-select-wrapper {
+                position: relative;
+            }
+            .custom-select-wrapper::after {
+                content: '▼';
+                font-size: 0.7rem;
+                color: var(--text-muted);
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                pointer-events: none;
+            }
+        `}</style>
+    </motion.div>
 );
+
+const setupInputStyle = {
+    width: '100%',
+    height: '56px',
+    background: 'rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '14px',
+    padding: '0 20px',
+    color: 'white',
+    fontSize: '1rem',
+    fontWeight: 500,
+    appearance: 'none',
+    outline: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease'
+};
 
 const InterviewSession = ({ token, interviewId, initialQuestion, onFinish }) => {
     const [conversation, setConversation] = useState([{ role: 'ai', content: initialQuestion }]);

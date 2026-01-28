@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Create Gemini client using env key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
 
 // Debug once (safe)
 if (!process.env.GEMINI_API_KEY) {
@@ -55,6 +55,8 @@ Return feedback in Markdown with **exactly** this structure:
 Keep total under 150 words.
 `;
 
+    // Basic rate limit: 200ms delay
+    await new Promise(r => setTimeout(r, 200));
     const result = await model.generateContent(prompt);
     const response = result.response;
     const feedback = response.text().trim();
@@ -68,8 +70,9 @@ Keep total under 150 words.
     res.status(200).json({ feedback });
   } catch (error) {
     console.error('❌ Gemini feedback error:', error);
-    res.status(500).json({
-      message: 'AI feedback failed',
+    const isQuotaError = error.message?.includes('429') || error.status === 429;
+    res.status(isQuotaError ? 429 : 500).json({
+      message: isQuotaError ? 'AI Quota exceeded. Please try again in a few minutes or check your Gemini API plan.' : 'AI feedback failed',
       error: error.message || 'Unknown error',
     });
   }
@@ -107,6 +110,8 @@ router.post('/chat', protect, async (req, res) => {
       { role: 'user', parts: [{ text: message }] },
     ];
 
+    // Basic rate limit: 200ms delay
+    await new Promise(r => setTimeout(r, 200));
     const result = await model.generateContent({ contents });
     const reply = result.response.text().trim();
 
@@ -117,8 +122,9 @@ router.post('/chat', protect, async (req, res) => {
     res.status(200).json({ reply });
   } catch (error) {
     console.error('❌ Gemini chat error:', error);
-    res.status(500).json({
-      error: 'AI chat failed',
+    const isQuotaError = error.message?.includes('429') || error.status === 429;
+    res.status(isQuotaError ? 429 : 500).json({
+      error: isQuotaError ? 'AI Quota exceeded. Please try again later.' : 'AI chat failed',
       details: error.message || 'Unknown error',
     });
   }

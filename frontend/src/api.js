@@ -175,42 +175,6 @@ export async function replyToFeedback(token, id, message) {
 }
 
 
-export async function generateRoadmap(token, { targetRole, experienceLevel }) {
-  const res = await fetch(`${API_URL}/api/roadmap/generate`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ targetRole, experienceLevel }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Roadmap generation failed");
-  return data;
-}
-
-export async function getRoadmap(token) {
-  const res = await fetch(`${API_URL}/api/roadmap`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Failed to fetch roadmap");
-  return data;
-}
-
-export async function toggleRoadmapTopic(token, { weekIndex, topicId }) {
-  const res = await fetch(`${API_URL}/api/roadmap/toggle-topic`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ weekIndex, topicId }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Failed to toggle topic");
-  return data;
-}
 
 export async function analyzeResume(token, formData) {
   const res = await fetch(`${API_URL}/api/resume/analyze`, {
@@ -279,4 +243,38 @@ export async function getAnalytics(token) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || 'Failed to fetch analytics');
   return data; // { timeline, mastery, insights, stats }
+}
+
+export async function getChatResponse(token, message, history) {
+  const res = await fetch(`${API_URL}/api/ai/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ message, history }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Chat failed');
+  return data; // { reply }
+}
+
+export async function getAdminStats(token) {
+  const res = await fetch(`${API_URL}/api/admin/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Failed to fetch admin stats');
+  return data;
+}
+
+export async function subscribeNewsletter(email) {
+  const res = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || 'Subscription failed');
+  return data;
 }

@@ -6,7 +6,7 @@ const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
 
 /**
  * @desc    Start a new Mock Interview Session
@@ -40,6 +40,8 @@ router.post('/start', protect, async (req, res) => {
       Output ONLY the question text.
     `;
 
+        // Basic rate limit: 200ms delay
+        await new Promise(r => setTimeout(r, 200));
         const result = await model.generateContent(prompt);
         const question = result.response.text();
 
@@ -53,7 +55,11 @@ router.post('/start', protect, async (req, res) => {
         res.json({ interviewId: interview._id, question });
     } catch (error) {
         console.error('Start interview error:', error);
-        res.status(500).json({ message: 'Failed to start interview' });
+        const isQuotaError = error.message?.includes('429');
+        res.status(isQuotaError ? 429 : 500).json({
+            message: isQuotaError ? 'AI Quota exceeded. Please try again later.' : 'Failed to start interview',
+            error: error.message
+        });
     }
 });
 
@@ -105,12 +111,21 @@ router.post('/:id/answer', protect, async (req, res) => {
       }
     `;
 
+        // Basic rate limit: 200ms delay
+        await new Promise(r => setTimeout(r, 200));
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        let jsonString = responseText;
+        const codeBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+        if (codeBlockMatch) {
+            jsonString = codeBlockMatch[1];
+        } else {
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) jsonString = jsonMatch[0];
+            else throw new Error('Invalid AI response - No JSON found');
+        }
 
-        if (!jsonMatch) throw new Error('Invalid AI response');
-        const aiData = JSON.parse(jsonMatch[0]);
+        const aiData = JSON.parse(jsonString);
 
         // Update conversation with user feedback and new AI question
         // 1. Update user message with feedback scores
@@ -128,7 +143,11 @@ router.post('/:id/answer', protect, async (req, res) => {
         res.json(aiData);
     } catch (error) {
         console.error('Answer submission error:', error);
-        res.status(500).json({ message: 'Failed to process answer', error: error.message });
+        const isQuotaError = error.message?.includes('429');
+        res.status(isQuotaError ? 429 : 500).json({
+            message: isQuotaError ? 'AI Quota exceeded. Please try again later.' : 'Failed to process answer',
+            error: error.message
+        });
     }
 });
 
@@ -161,12 +180,21 @@ router.post('/:id/end', protect, async (req, res) => {
       }
     `;
 
+        // Basic rate limit: 200ms delay
+        await new Promise(r => setTimeout(r, 200));
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        let jsonString = responseText;
+        const codeBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+        if (codeBlockMatch) {
+            jsonString = codeBlockMatch[1];
+        } else {
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) jsonString = jsonMatch[0];
+            else throw new Error('Invalid AI report - No JSON found');
+        }
 
-        if (!jsonMatch) throw new Error('Invalid AI report');
-        const report = JSON.parse(jsonMatch[0]);
+        const report = JSON.parse(jsonString);
 
         interview.status = 'completed';
         interview.summary = report;
@@ -175,7 +203,11 @@ router.post('/:id/end', protect, async (req, res) => {
         res.json(interview);
     } catch (error) {
         console.error('End interview error:', error);
-        res.status(500).json({ message: 'Failed to generate report' });
+        const isQuotaError = error.message?.includes('429');
+        res.status(isQuotaError ? 429 : 500).json({
+            message: isQuotaError ? 'AI Quota exceeded while generating report.' : 'Failed to generate report',
+            error: error.message
+        });
     }
 });
 

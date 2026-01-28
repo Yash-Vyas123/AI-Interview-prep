@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { UserPlus, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { register, getProfile } from './api';
+import AuthThreeScene from './AuthThreeScene';
 
 function RegisterPage() {
     const [name, setName] = useState('');
@@ -15,7 +18,6 @@ function RegisterPage() {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        // Basic Client-side Validation
         if (!name || !email || !password || !confirmPassword) {
             setMessage('All fields are required');
             return;
@@ -46,14 +48,12 @@ function RegisterPage() {
             localStorage.setItem('role', data.role);
             setMessage('Registration successful! Redirecting...');
 
-            // Verification fetch
             try {
                 await getProfile(data.token);
             } catch (err) {
                 console.warn('Profile fetch after register failed', err);
             }
 
-            // Redirect to dashboard after short delay
             setTimeout(() => {
                 navigate('/dashboard');
             }, 1000);
@@ -66,110 +66,224 @@ function RegisterPage() {
     }
 
     return (
-        <div className="auth-page">
-            <div className="auth-card">
-                <h1 className="auth-title">Create Account</h1>
-                <p className="auth-subtitle">
-                    Join us to master your interview preparation.
-                </p>
+        <div className="auth-page" style={{ position: 'relative', overflow: 'hidden' }}>
+            {/* Dynamic Auth Background */}
+            <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.7 }}>
+                <AuthThreeScene />
+            </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="auth-input-group">
-                        <label className="auth-label">Full Name</label>
-                        <input
-                            type="text"
-                            placeholder="John Doe"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <div className="auth-input-group">
-                        <label className="auth-label">Email</label>
-                        <input
-                            type="email"
-                            placeholder="you@example.com"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-
-                    <div className="auth-input-group" style={{ position: 'relative' }}>
-                        <label className="auth-label">Password</label>
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                            style={{ paddingRight: '40px' }}
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            style={{
-                                position: 'absolute',
-                                right: '10px',
-                                top: '38px',
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: 0,
-                                width: 'auto',
-                                height: 'auto',
-                                boxShadow: 'none',
-                                marginTop: 0,
-                                color: '#94a3b8'
-                            }}
-                            title={showPassword ? "Hide password" : "Show password"}
+            <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="auth-card"
+                style={{ maxWidth: '520px' }}
+            >
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    <h1 className="auth-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '2.5rem' }}>
+                        <motion.div
+                            animate={{ y: [0, -5, 0] }}
+                            transition={{ repeat: Infinity, duration: 3 }}
                         >
-                            {showPassword ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                                </svg>
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                            )}
-                        </button>
-                    </div>
+                            <UserPlus className="text-gradient" size={32} />
+                        </motion.div>
+                        <span>Create Account</span>
+                    </h1>
+                    <p className="auth-subtitle" style={{ fontSize: '1.1rem', maxWidth: '350px', margin: '0.5rem auto 2.5rem' }}>
+                        Join the elite circle of prep-masters with AI-powered coaching.
+                    </p>
+                </motion.div>
 
-                    <div className="auth-input-group">
-                        <label className="auth-label">Confirm Password</label>
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
-                            value={confirmPassword}
-                            onChange={e => setConfirmPassword(e.target.value)}
-                            required
-                        />
+                <form onSubmit={handleSubmit} style={{ position: 'relative', zIndex: 1 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
+                        <motion.div
+                            initial={{ opacity: 0, x: -15 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="auth-input-group"
+                        >
+                            <label className="auth-label" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                                <User size={16} className="text-gradient" /> Full Name
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Genius Candidate"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                required
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '16px',
+                                    padding: '1.1rem 1.5rem'
+                                }}
+                            />
+                        </motion.div>
+
+                        <motion.div
+                            initial={{ opacity: 0, x: -15 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.35 }}
+                            className="auth-input-group"
+                        >
+                            <label className="auth-label" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                                <Mail size={16} className="text-gradient" /> Email Address
+                            </label>
+                            <input
+                                type="email"
+                                placeholder="future@tech.com"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                required
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '16px',
+                                    padding: '1.1rem 1.5rem'
+                                }}
+                            />
+                        </motion.div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <motion.div
+                                initial={{ opacity: 0, x: -15 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.4 }}
+                                className="auth-input-group"
+                                style={{ position: 'relative' }}
+                            >
+                                <label className="auth-label" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                                    <Lock size={16} className="text-gradient" /> Password
+                                </label>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    required
+                                    style={{
+                                        paddingRight: '45px',
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '16px',
+                                        padding: '1.1rem 1.5rem'
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{
+                                        position: 'absolute',
+                                        right: '12px',
+                                        top: '46px',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: 0,
+                                        width: 'auto',
+                                        height: 'auto',
+                                        boxShadow: 'none',
+                                        marginTop: 0,
+                                        color: 'var(--text-muted)'
+                                    }}
+                                    title={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
+                            </motion.div>
+
+                            <motion.div
+                                initial={{ opacity: 0, x: 15 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.45 }}
+                                className="auth-input-group"
+                            >
+                                <label className="auth-label" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-main)', fontSize: '0.95rem' }}>
+                                    Confirm
+                                </label>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="••••••••"
+                                    value={confirmPassword}
+                                    onChange={e => setConfirmPassword(e.target.value)}
+                                    required
+                                    style={{
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        borderRadius: '16px',
+                                        padding: '1.1rem 1.5rem'
+                                    }}
+                                />
+                            </motion.div>
+                        </div>
                     </div>
 
                     {message && (
-                        <p style={{ marginTop: 8, color: message.includes('successful') ? '#4ade80' : '#f87171', textAlign: 'center' }}>
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            style={{
+                                marginTop: '1.5rem',
+                                padding: '0.75rem',
+                                borderRadius: '12px',
+                                backgroundColor: message.includes('successful') ? 'rgba(74, 222, 128, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+                                color: message.includes('successful') ? '#4ade80' : '#f87171',
+                                textAlign: 'center',
+                                fontSize: '0.9rem',
+                                border: `1px solid ${message.includes('successful') ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)'}`
+                            }}
+                        >
                             {message}
-                        </p>
+                        </motion.div>
                     )}
 
-                    <button type="submit" disabled={loading}>
+                    <motion.button
+                        whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)' }}
+                        whileTap={{ scale: 0.98 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                            height: '56px',
+                            fontSize: '1.1rem',
+                            borderRadius: '16px',
+                            background: 'linear-gradient(135deg, var(--secondary), #0891b2)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '10px',
+                            marginTop: '2rem'
+                        }}
+                    >
                         {loading ? (
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                <div className="spinner" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
-                                Creating Account...
-                            </div>
-                        ) : 'Register'}
-                    </button>
+                            <>
+                                <div className="spinner" style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
+                                <span>Securing Profile...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span>Get Started</span>
+                                <ArrowRight size={20} />
+                            </>
+                        )}
+                    </motion.button>
                 </form>
 
-                <p style={{ marginTop: '1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    Already have an account? <Link to="/login" style={{ color: '#0ea5e9' }}>Login here</Link>
-                </p>
-            </div>
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                    style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}
+                >
+                    Part of the squad? <Link to="/login" style={{ color: 'var(--primary)', fontWeight: '600', textDecoration: 'none', borderBottom: '1px solid transparent', transition: 'border-color 0.2s' }} onMouseEnter={e => e.target.style.borderColor = 'var(--primary)'} onMouseLeave={e => e.target.style.borderColor = 'transparent'}>Sign In</Link>
+                </motion.p>
+            </motion.div>
         </div>
     );
 }

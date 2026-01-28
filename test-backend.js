@@ -4,7 +4,7 @@ const API_URL = 'http://localhost:5000/api';
 
 async function testAuth() {
     try {
-        // 1. Register User
+        // 1. Register User     
         console.log('Testing Registration...');
         const regRes = await axios.post(`${API_URL}/auth/register`, {
             name: 'Test User',

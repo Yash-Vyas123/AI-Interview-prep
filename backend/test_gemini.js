@@ -11,7 +11,7 @@ async function testGemini() {
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-    const modelName = 'gemini-flash-latest';
+    const modelName = 'gemini-1.5-flash';
     console.log(`Testing model: ${modelName}`);
 
     try {

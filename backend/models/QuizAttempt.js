@@ -12,6 +12,8 @@ const quizAttemptSchema = new mongoose.Schema(
       },
     ],
     score: { type: Number, required: true },
+    totalQuestions: { type: Number, required: true },
+    topic: { type: String, default: 'General' },
   },
   { timestamps: true }
 );

@@ -6,7 +6,7 @@ const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
 
 /**
  * @desc    Get aggregated analytics data
@@ -26,7 +26,8 @@ router.get('/', protect, async (req, res) => {
         const timeline = [];
 
         quizAttempts.forEach(q => {
-            const percentage = (q.score / q.totalQuestions) * 100;
+            const count = q.totalQuestions || q.answers?.length || 5;
+            const percentage = (q.score / count) * 100;
             timeline.push({
                 date: q.createdAt,
                 score: Math.round(percentage),
@@ -84,6 +85,8 @@ router.get('/', protect, async (req, res) => {
           Address the user directly as "You".
         `;
 
+                // Basic rate limit: 200ms delay
+                await new Promise(r => setTimeout(r, 200));
                 const result = await model.generateContent(prompt);
                 insights = result.response.text();
             } catch (aiError) {
@@ -98,7 +101,9 @@ router.get('/', protect, async (req, res) => {
             stats: {
                 totalQuizzes: quizAttempts.length,
                 totalInterviews: interviews.length,
-                avgScore: timeline.length > 0 ? Math.round(timeline.reduce((a, b) => a + b.score, 0) / timeline.length) : 0
+                avgScore: timeline.length > 0
+                    ? Math.round(timeline.reduce((sum, item) => sum + (Number(item.score) || 0), 0) / timeline.length)
+                    : 0
             }
         });
 

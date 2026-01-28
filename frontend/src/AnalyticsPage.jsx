@@ -135,7 +135,7 @@ const AnalyticsPage = () => {
                                 <BarChart data={data.mastery} layout="vertical">
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                                     <XAxis type="number" domain={[0, 100]} stroke="var(--text-muted)" />
-                                    <YAxis type="category" dataKey="topic" width={100} stroke="var(--text-muted)" />
+                                    <YAxis type="category" dataKey="topic" width={120} stroke="var(--text-muted)" />
                                     <Tooltip
                                         cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                                         contentStyle={{ backgroundColor: 'var(--bg-dark)', border: '1px solid var(--glass-border)', color: 'white' }}

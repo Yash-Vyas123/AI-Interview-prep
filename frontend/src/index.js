@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronsUp, ChevronLeft } from 'lucide-react';
 import './index.css';
 import './App.css';
 import LoginPage from './LoginPage';
@@ -11,17 +12,19 @@ import DashboardPage from './DashboardPage';
 import ProtectedRoute from './ProtectedRoute';
 import QuizPage from './QuizPage';
 import AdminQuestionsPage from './AdminQuestionsPage';
-import ProfilePage from './ProfilePage';   // NEW
+import ProfilePage from './ProfilePage';
 import FeedbackPage from './FeedbackPage';
 import AdminFeedbackPage from './AdminFeedbackPage';
-import RoadmapPage from './RoadmapPage';
 import ResumePage from './ResumePage';
 import MockInterviewPage from './MockInterviewPage';
 import AnalyticsPage from './AnalyticsPage';
 import AdminDashboardPage from './AdminDashboardPage';
 import MentorDashboardPage from './MentorDashboardPage';
 import HeaderUserMenu from './HeaderUserMenu';
-import ChatbotWidget from './ChatbotWidget';   // adjust path if needed
+import ChatbotWidget from './ChatbotWidget';
+import AdminLayout from './AdminLayout';
+import Footer from './Footer';
+import AboutPage from './pages/AboutPage';
 
 function AppRoutes() {
   return (
@@ -48,13 +51,15 @@ function AppRoutes() {
       <Route
         path="/admin/questions"
         element={
-          <ProtectedRoute>
-            <AdminQuestionsPage />
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminLayout>
+              <AdminQuestionsPage />
+            </AdminLayout>
           </ProtectedRoute>
         }
       />
       <Route
-        path="/profile"          // NEW route
+        path="/profile"
         element={
           <ProtectedRoute>
             <ProfilePage />
@@ -72,16 +77,10 @@ function AppRoutes() {
       <Route
         path="/admin/feedback"
         element={
-          <ProtectedRoute>
-            <AdminFeedbackPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/roadmap"
-        element={
-          <ProtectedRoute>
-            <RoadmapPage />
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminLayout>
+              <AdminFeedbackPage />
+            </AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -113,7 +112,9 @@ function AppRoutes() {
         path="/admin"
         element={
           <ProtectedRoute allowedRoles={['admin']}>
-            <AdminDashboardPage />
+            <AdminLayout>
+              <AdminDashboardPage />
+            </AdminLayout>
           </ProtectedRoute>
         }
       />
@@ -125,6 +126,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/about" element={<AboutPage />} />
     </Routes>
   );
 }
@@ -134,39 +136,136 @@ function LoginWrapper() {
   return <LoginPage onSuccess={() => navigate('/dashboard')} />;
 }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <BrowserRouter>
+function MainLayout() {
+  const location = useLocation();
+  // Hide global header on dashboard and admin pages for cleaner layout
+  // We also hide it if we are in admin sub-paths
+  const hideHeader = location.pathname === '/dashboard' ||
+    location.pathname.startsWith('/admin') ||
+    location.pathname === '/quiz' ||
+    location.pathname === '/interview' ||
+    location.pathname === '/analytics' ||
+    location.pathname === '/about';
+
+  // We should also hide footer on admin pages for a dashboard feel
+  const hideFooter = location.pathname.startsWith('/admin');
+
+  return (
     <div className="app-container">
-      <header className="app-header">
-        <h2 className="app-header-title">AI Interview Prep</h2>
-        <HeaderUserMenu />   {/* NEW avatar + menu on right */}
-      </header>
+      {!hideHeader && (
+        <header className="app-header">
+          <h2 className="app-header-title">Prepfolio AI</h2>
+          <HeaderUserMenu />
+        </header>
+      )}
 
       {/* GLOBAL AI CHATBOT, visible on all pages */}
       <ChatbotWidget />
 
+      {/* Global Navigation Aids */}
+      <NavigationAids />
+
       <AppRoutes />
 
-      <footer className="app-footer">
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          style={{ marginBottom: '1rem', fontStyle: 'italic', color: 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-        >
-          Thanks for visiting and happy coding! <Heart size={16} fill="var(--accent-pink)" color="var(--accent-pink)" />
-        </motion.p>
-        <p className="app-footer-copy">
-          &copy; {new Date().getFullYear()} AI Interview Prep. All rights reserved.
-        </p>
-        <div className="app-footer-links">
-          <a href="/roadmap" className="app-footer-link">AI Roadmap</a>
-          <a href="/feedback" className="app-footer-link">Feedback</a>
-          <a href="#" className="app-footer-link">Terms</a>
-          <a href="#" className="app-footer-link">Privacy</a>
-        </div>
-      </footer>
+      {!hideFooter && <Footer />}
     </div>
+  );
+}
+
+function NavigationAids() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isInternalPage = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/dashboard';
+
+  return (
+    <>
+      {/* Scroll to Top Button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="nav-aid-btn scrollTop"
+            style={{
+              position: 'fixed',
+              bottom: '90px',
+              right: '25px',
+              zIndex: 9999,
+              width: '50px',
+              height: '50px',
+              borderRadius: '15px',
+              background: 'linear-gradient(135deg, var(--primary), var(--secondary))',
+              border: 'none',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(139, 92, 246, 0.4)',
+              backdropFilter: 'blur(10px)',
+            }}
+            whileHover={{
+              scale: 1.1,
+              boxShadow: '0 12px 30px rgba(139, 92, 246, 0.6)',
+              translateY: -5
+            }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <ChevronsUp size={28} color="white" strokeWidth={3} /> Up
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Back Button (Only on internal pages) */}
+      {isInternalPage && (
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => navigate(-1)}
+          className="nav-aid-btn backBtn"
+          style={{
+            position: 'fixed',
+            bottom: '25px',
+            left: '25px',
+            zIndex: 9999,
+            padding: '10px 18px',
+            borderRadius: '12px',
+            background: 'rgba(15, 23, 42, 0.6)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '0.9rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.4)'
+          }}
+          whileHover={{ scale: 1.05, border: '1px solid var(--primary)' }}
+        >
+          <ChevronLeft size={18} /> Back
+        </motion.button>
+      )}
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <BrowserRouter>
+    <MainLayout />
   </BrowserRouter>
 );

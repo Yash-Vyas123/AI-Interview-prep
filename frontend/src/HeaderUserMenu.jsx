@@ -1,14 +1,28 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  User,
+  Settings,
+  MessageSquare,
+  LogOut,
+  ShieldCheck,
+  ChevronDown
+} from 'lucide-react';
 import { getProfile } from './api';
 
-function HeaderUserMenu() {
-  const [user, setUser] = useState(null);
+function HeaderUserMenu({ user: propUser }) {
+  const [user, setUser] = useState(propUser || null);
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (propUser) {
+      setUser(propUser);
+      return;
+    }
+
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -20,9 +34,8 @@ function HeaderUserMenu() {
         console.error('Header profile load error:', err);
       }
     })();
-  }, []);
+  }, [propUser]);
 
-  // close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -40,10 +53,7 @@ function HeaderUserMenu() {
     navigate('/');
   }
 
-  if (!user) {
-    // no user yet; show nothing on login page
-    return null;
-  }
+  if (!user) return null;
 
   const initials = (user.name || 'U')
     .split(' ')
@@ -53,169 +63,159 @@ function HeaderUserMenu() {
     .slice(0, 2);
 
   return (
-    <div
-      ref={menuRef}
-      style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
-    >
-      {/* name (optional small text) */}
-      <span
+    <div ref={menuRef} style={{ position: 'relative' }}>
+      {/* Trigger Button */}
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={() => setOpen(!open)}
         style={{
-          marginRight: 12,
-          fontFamily: "'Outfit', sans-serif",
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '4px 6px 4px 12px',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '100px',
+          cursor: 'pointer',
+          color: 'white',
+          height: '46px'
+        }}
+      >
+        <div style={{
+          fontFamily: "'Inter', sans-serif",
           fontWeight: 600,
-          fontSize: 16,
-          color: '#ffffff',
-          letterSpacing: '0.02em',
-          textShadow: '0 1px 2px rgba(0,0,0,0.1)',
-        }}
-      >
-        {user.name}
-      </span>
+          fontSize: '0.85rem',
+          color: 'var(--text-main)',
+        }}>
+          {user.name.split(' ')[0]}
+        </div>
 
-      {/* avatar pill */}
-      <button
-        type="button"
-        onClick={() => setOpen(o => !o)}
-        style={{
-          borderRadius: 999,
-          padding: 2,
-          border: '2px solid rgba(248, 250, 252, 0.9)',
-          background:
-            'radial-gradient(circle at 30% 0%, #38bdf8, #0f172a 60%, #22c55e)',
-        }}
-      >
-        <div
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: '999px',
-            overflow: 'hidden',
-            backgroundColor: '#020617',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#e5e7eb',
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
+        <div style={{
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          background: user.avatarUrl ? 'transparent' : 'linear-gradient(135deg, var(--primary), var(--secondary))',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1.5px solid rgba(255, 255, 255, 0.2)'
+        }}>
           {user.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt={user.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: '#020617' }}
-            />
+            <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            initials
+            <span style={{ fontSize: '12px' }}>{initials}</span>
           )}
         </div>
-      </button>
 
-      {/* dropdown */}
-      {open && (
-        <div
+        <ChevronDown
+          size={14}
           style={{
-            position: 'absolute',
-            right: 0,
-            top: 52,
-            width: 190,
-            background: 'rgba(2, 6, 23, 0.96)',
-            borderRadius: 14,
-            boxShadow: '0 20px 45px rgba(15,23,42,0.9)',
-            border: '1px solid rgba(148,163,184,0.4)',
-            padding: '8px 0',
-            zIndex: 50,
-            backdropFilter: 'blur(10px)',
+            color: 'var(--text-muted)',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.3s ease'
           }}
-        >
-          <div
+        />
+      </motion.button>
+
+      {/* Dropdown Menu */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
             style={{
-              padding: '8px 14px',
-              borderBottom: '1px solid rgba(51,65,85,0.8)',
+              position: 'absolute',
+              right: 0,
+              top: 'calc(100% + 10px)',
+              width: '260px',
+              background: 'rgba(10, 15, 30, 0.9)',
+              backdropFilter: 'blur(30px)',
+              WebkitBackdropFilter: 'blur(30px)',
+              borderRadius: '24px',
+              padding: '12px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              zIndex: 100
             }}
           >
-            <div
-              style={{
-                fontSize: 13,
-                color: '#e5e7eb',
-                fontWeight: 600,
-                marginBottom: 2,
-              }}
-            >
-              {user.name}
+            {/* Header Info */}
+            <div style={{
+              padding: '12px 14px 16px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+              marginBottom: '10px'
+            }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'white' }}>{user.name}</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>{user.email}</div>
             </div>
-            <div style={{ fontSize: 11, color: '#9ca3af' }}>{user.email}</div>
-          </div>
 
-          {user.role === 'admin' && (
-            <button
-              type="button"
-              onClick={() => {
-                navigate('/admin');
-                setOpen(false);
-              }}
-              style={{ ...menuItemStyle, color: '#f87171' }}
-            >
-              Admin Console
-            </button>
-          )}
+            {/* Menu Items */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {user.role === 'admin' && (
+                <MenuButton
+                  icon={<ShieldCheck size={18} />}
+                  label="Admin Console"
+                  onClick={() => { navigate('/admin'); setOpen(false); }}
+                  highlight="var(--primary)"
+                />
+              )}
 
-          <button
-            type="button"
-            onClick={() => {
-              navigate('/profile');
-              setOpen(false);
-            }}
-            style={menuItemStyle}
-          >
-            View profile
-          </button>
+              <MenuButton
+                icon={<User size={18} />}
+                label="My Profile"
+                onClick={() => { navigate('/profile'); setOpen(false); }}
+              />
 
-          <button
-            type="button"
-            onClick={() => {
-              // later you can use /settings
-              navigate('/profile');
-              setOpen(false);
-            }}
-            style={menuItemStyle}
-          >
-            Settings
-          </button>
+              <MenuButton
+                icon={<MessageSquare size={18} />}
+                label="Give Feedback"
+                onClick={() => { navigate('/feedback'); setOpen(false); }}
+              />
 
-          <button
-            type="button"
-            onClick={() => {
-              navigate('/feedback');
-              setOpen(false);
-            }}
-            style={menuItemStyle}
-          >
-            Feedback
-          </button>
+              <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.05)', margin: '8px 4px' }} />
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            style={{ ...menuItemStyle, color: '#ff4d4d', fontWeight: 'bold' }}
-          >
-            Logout
-          </button>
-        </div>
-      )}
+              <MenuButton
+                icon={<LogOut size={18} />}
+                label="Sign Out"
+                onClick={handleLogout}
+                highlight="#f87171"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-const menuItemStyle = {
-  width: '100%',
-  textAlign: 'left',
-  padding: '8px 14px',
-  background: 'transparent',
-  border: 'none',
-  color: '#e5e7eb',
-  fontSize: 13,
-  cursor: 'pointer',
-};
+function MenuButton({ icon, label, onClick, highlight }) {
+  return (
+    <motion.button
+      whileHover={{ x: 4, background: 'rgba(255, 255, 255, 0.06)' }}
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '10px 14px',
+        borderRadius: '14px',
+        border: 'none',
+        background: 'transparent',
+        width: '100%',
+        textAlign: 'left',
+        cursor: 'pointer',
+        color: highlight ? highlight : '#e5e7eb',
+        fontWeight: highlight ? 600 : 500,
+        fontSize: '0.9rem',
+        transition: 'color 0.2s ease'
+      }}
+    >
+      <span style={{ color: highlight ? highlight : 'var(--text-muted)' }}>{icon}</span>
+      {label}
+    </motion.button>
+  );
+}
 
 export default HeaderUserMenu;

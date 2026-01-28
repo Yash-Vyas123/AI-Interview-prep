@@ -12,7 +12,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // AI Setup
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
 
 /**
  * @desc    Analyze Resume & Generate Interview Questions
@@ -85,14 +85,27 @@ router.post('/analyze', protect, upload.single('resume'), async (req, res) => {
 
         // 3. Generate Content
         console.log('🤖 Sending to Gemini...');
+        // Basic rate limit: 200ms delay
+        await new Promise(r => setTimeout(r, 200));
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
         console.log('✅ Gemini Response Received');
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
 
-        if (!jsonMatch) throw new Error('AI failed to return valid JSON');
+        // Improve JSON extraction
+        let jsonString = responseText;
+        const codeBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+        if (codeBlockMatch) {
+            jsonString = codeBlockMatch[1];
+        } else {
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                jsonString = jsonMatch[0];
+            } else {
+                throw new Error('AI failed to return valid JSON');
+            }
+        }
 
-        const analysis = JSON.parse(jsonMatch[0]);
+        const analysis = JSON.parse(jsonString);
 
         // 4. Save to DB
         const resumeEntry = await Resume.create({

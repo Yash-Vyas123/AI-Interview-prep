@@ -7,7 +7,6 @@ import DashboardPage from './DashboardPage';
 import QuizPage from './QuizPage';
 import ProtectedRoute from './ProtectedRoute';
 import FeedbackPage from './FeedbackPage';
-import RoadmapPage from './RoadmapPage';
 import ResumePage from './ResumePage';
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
@@ -41,7 +40,7 @@ function Home() {
               2000,
               'Crush Technicals',
               2000,
-              'AI Interview Prep',
+              'Prepfolio AI',
               5000,
             ]}
             wrapper="span"
@@ -97,9 +96,10 @@ function Home() {
   );
 }
 
+
 function App() {
   return (
-    <div>
+    <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
@@ -125,14 +125,6 @@ function App() {
         <Route path="/admin/questions" element={<AdminQuestionsPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route
-          path="/roadmap"
-          element={
-            <ProtectedRoute>
-              <RoadmapPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/resume"
           element={
             <ProtectedRoute>
@@ -144,5 +136,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;

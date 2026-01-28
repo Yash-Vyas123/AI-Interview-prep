@@ -8,11 +8,11 @@ const questionRoutes = require('./routes/questionRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const aiRoutes = require('./routes/aiRoutes');// ← new
 const feedbackRoutes = require('./routes/feedbackRoutes');
-const roadmapRoutes = require('./routes/roadmapRoutes');
 const resumeRoutes = require('./routes/resumeRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const newsletterRoutes = require('./routes/newsletterRoutes');
 
 
 const app = express();
@@ -27,11 +27,11 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/quizzes', quizRoutes);
 app.use('/api/ai', aiRoutes); // ← new
 app.use('/api/feedback', feedbackRoutes);
-app.use('/api/roadmap', roadmapRoutes);
 app.use('/api/resume', resumeRoutes);
 app.use('/api/interview', interviewRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 
 
@@ -48,6 +48,21 @@ mongoose
   .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/interviewprep')
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.log('❌ MongoDB error:', err));
+
+// --- DEPLOYMENT CONFIGURATION ---
+const path = require('path');
+
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+  // Any route that doesn't match an API route will be redirected to the index.html
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
+  });
+}
+// --------------------------------
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

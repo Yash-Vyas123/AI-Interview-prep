@@ -79,11 +79,16 @@ router.post('/submit', protect, async (req, res) => {
       });
     }
 
+    const firstQ = await Question.findById(answers[0]?.questionId);
+    const quizTopic = firstQ ? firstQ.topic : 'General';
+
     const attempt = await QuizAttempt.create({
       user: req.user._id,
       questions: answers.map(a => a.questionId),
       answers: detailedAnswers,
       score,
+      totalQuestions: answers.length,
+      topic: quizTopic,
     });
 
     res.json({
