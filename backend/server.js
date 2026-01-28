@@ -58,7 +58,8 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/build')));
 
   // Any route that doesn't match an API route will be redirected to the index.html
-  app.get('*', (req, res) => {
+  // Note: Using regex path matching to avoid Express 5.x wildcard parser errors
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend', 'build', 'index.html'));
   });
 }
