@@ -11,7 +11,8 @@
         "install-client": "cd frontend && npm install",
         "install-server": "cd backend && npm install",
         "install-all": "npm run install-client && npm run install-server",
-        "build": "npm run install-all && cd frontend && npm run build",
+        "build": "npm run install-all && cd frontend && CI=false npm run build",
+        "render-postbuild": "npm run install-all && cd frontend && npm install && CI=false npm run build",
         "postinstall": "npm run install-all"
     },
     "author": "Yash Vyas",
