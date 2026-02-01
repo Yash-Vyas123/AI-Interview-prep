@@ -193,6 +193,8 @@ export async function getResumeAnalysis(token) {
   const res = await fetch(`${API_URL}/api/resume`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  if (!res.ok)
+    return null;
   const data = await res.json();
   return data;
 }
