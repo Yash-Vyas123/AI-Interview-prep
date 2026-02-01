@@ -1,6 +1,6 @@
 # Prepfolio AI 🚀
 
-[**View Live Demo**](#) | [**Report Bug**](#) | [**Request Feature**](#)
+[**View Live Demo**](https://ai-interview-prep-coral.vercel.app/) | [**Report Bug**](#) | [**Request Feature**](#)
 
 Prepfolio AI is a comprehensive, full-stack web application designed to democratize technical interview preparation. By leveraging the power of **Google Gemini Pro**, it provides users with personalized, real-time feedback on mock interviews, resume scanning, and technical quizzes. The platform features a premium "Neon Glass" aesthetic, a robust admin console, and role-based access control.
 
