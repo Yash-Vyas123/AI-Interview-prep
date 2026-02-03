@@ -1,6 +1,6 @@
 // frontend/src/api.js
 
-const API_URL = process.env.REACT_APP_API_URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'
 
 
 // register function added
@@ -193,6 +193,8 @@ export async function getResumeAnalysis(token) {
   const res = await fetch(`${API_URL}/api/resume`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+  if (!res.ok)
+    return null;
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Failed to fetch resume analysis");
   return data;
