@@ -469,7 +469,7 @@ label {
   display: block;
 }
 
-/* Responsive Tables */
+/* Responsive Tables & Global Mobile Fixes */
 @media (max-width: 768px) {
   .glass-panel {
     padding: 1.5rem;
@@ -479,5 +479,105 @@ label {
   td {
     padding: 0.75rem !important;
     font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --radius-lg: 20px;
+    --radius-md: 12px;
+  }
+
+  .app-container {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2.25rem !important;
+    line-height: 1.2 !important;
+  }
+
+  h2 {
+    font-size: 1.75rem !important;
+  }
+
+  .section,
+  .glass-panel {
+    padding: 1.25rem !important;
+  }
+
+  .app-header {
+    padding: 0.6rem 1rem;
+    top: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .app-header-title {
+    font-size: 1.15rem !important;
+  }
+
+  .auth-card {
+    padding: 2rem 1.5rem !important;
+    border-radius: 24px !important;
+  }
+
+  .auth-page {
+    padding: 1rem;
+    min-height: calc(100vh - 100px);
+  }
+
+  button {
+    padding: 0.7rem 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  .dashboard-hero-panel {
+    padding: 1.5rem !important;
+    border-radius: 24px !important;
+  }
+
+  .dashboard-hero-title {
+    font-size: 2.2rem !important;
+  }
+
+  .dashboard-hero-desc {
+    font-size: 1rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* FLUID TYPOGRAPHY UTILITIES */
+.responsive-h1 {
+  font-size: clamp(2rem, 8vw, 3.5rem) !important;
+  line-height: 1.1;
+}
+
+.responsive-h2 {
+  font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+  line-height: 1.2;
+}
+
+.responsive-title-giant {
+  font-size: clamp(2.5rem, 10vw, 4rem) !important;
+  line-height: 1;
+}
+
+.responsive-p-large {
+  font-size: clamp(1rem, 3vw, 1.25rem) !important;
+}
+
+@media (max-width: 480px) {
+  .nav-aid-btn.scrollTop {
+    bottom: 80px !important;
+    right: 15px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .nav-aid-btn.backBtn {
+    bottom: 20px !important;
+    left: 15px !important;
+    padding: 8px 12px !important;
+    font-size: 0.8rem !important;
   }
 }

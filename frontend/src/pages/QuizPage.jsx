@@ -199,10 +199,10 @@ function QuizPage() {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(139, 92, 246, 0.1)', color: 'var(--primary)', padding: '6px 16px', borderRadius: '99px', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1rem' }}>
             <Activity size={16} /> Knowledge Assessment
           </div>
-          <h1 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.03em' }}>
+          <h1 className="responsive-h1" style={{ fontWeight: 900, marginBottom: '1rem', letterSpacing: '-0.03em' }}>
             Prep<span className="text-gradient">QuizAI</span>
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
+          <p className="responsive-p-large" style={{ color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
             Tailored challenges designed to test your limits and prepare you for technical excellence.
           </p>
         </motion.div>
@@ -212,9 +212,9 @@ function QuizPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="glass-panel"
-            style={{ maxWidth: '900px', margin: '0 auto', padding: '3.5rem', borderRadius: '32px' }}
+            style={{ maxWidth: '900px', margin: '0 auto', borderRadius: '32px' }}
           >
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '2rem', marginBottom: '3rem' }}>
               <QuizSelect
                 label="Domain"
                 value={selectedTopic}
@@ -264,18 +264,18 @@ function QuizPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="glass-panel"
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2.5rem', borderRadius: '24px', marginBottom: '2rem', border: '1px solid rgba(139, 92, 246, 0.2)' }}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '24px', marginBottom: '2rem', border: '1px solid rgba(139, 92, 246, 0.2)' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <Timer size={24} className="text-gradient" />
-                <span style={{ fontSize: '1.8rem', fontWeight: 800, fontFamily: 'monospace', color: timeLeft < 60 ? '#f87171' : '#fff' }}>
+                <span style={{ fontSize: '1.5rem', fontWeight: 800, fontFamily: 'monospace', color: timeLeft < 60 ? '#f87171' : '#fff' }}>
                   {formatTime(timeLeft)}
                 </span>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 onClick={handleStopQuiz}
-                style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', height: '44px', padding: '0 20px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', height: '44px', padding: '0 15px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <StopCircle size={18} /> Abort
               </motion.button>

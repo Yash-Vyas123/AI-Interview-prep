@@ -32,7 +32,7 @@ const AboutPage = () => {
                     <Cpu size={48} color="white" />
                 </motion.div>
 
-                <h1 className="text-gradient">About Prepfolio AI</h1>
+                <h1 className="text-gradient responsive-h1">About Prepfolio AI</h1>
                 <p style={{ fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto' }}>
                     Your ultimate Gen-Z powered career companion. We bridge the gap between preparation and your dream technical job with cutting-edge AI.
                 </p>

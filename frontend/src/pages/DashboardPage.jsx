@@ -154,10 +154,9 @@ function DashboardPage() {
         {/* Platform Intro & Insights Section */}
         <motion.div
           variants={itemVariants}
-          className="glass-panel"
+          className="glass-panel dashboard-hero-panel"
           style={{
             marginBottom: '3rem',
-            padding: '3.5rem 2.5rem',
             background: 'rgba(15, 23, 42, 0.4)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             overflow: 'hidden',
@@ -191,7 +190,8 @@ function DashboardPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              style={{ fontSize: '3.8rem', marginBottom: '1.5rem', lineHeight: 1, fontWeight: 900, letterSpacing: '-0.04em' }}
+              className="dashboard-hero-title responsive-title-giant"
+              style={{ marginBottom: '1.5rem', fontWeight: 900, letterSpacing: '-0.04em' }}
             >
               Secure the Bag. <br />
               <span className="text-gradient" style={{ filter: 'drop-shadow(0 0 20px rgba(139, 92, 246, 0.4))' }}>Own Your Future.</span>
@@ -201,7 +201,8 @@ function DashboardPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              style={{ fontSize: '1.25rem', color: '#e2e8f0', maxWidth: '650px', marginBottom: '3rem', lineHeight: 1.6, fontWeight: 500 }}
+              className="dashboard-hero-desc"
+              style={{ color: '#e2e8f0', maxWidth: '650px', marginBottom: '3rem', lineHeight: 1.6, fontWeight: 500 }}
             >
               Hello <span style={{ color: 'var(--secondary)', fontWeight: 700 }}>{user?.name?.split(' ')[0]}</span>, it's time to lock in. We've built a high-key powerful AI to transform your technical grind into an unstoppable career flex.
             </motion.p>
@@ -322,9 +323,8 @@ function DashboardPage() {
           }}
           style={{
             display: 'grid',
-            // Optimized Grid for "Good Manner" arrangement: Admin (3x2) vs User (2x2)
-            gridTemplateColumns: `repeat(auto-fit, minmax(${user?.role === 'admin' ? '340px' : '450px'}, 1fr))`,
-            gap: '2rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+            gap: '1.5rem',
             marginBottom: '4rem',
           }}
         >

@@ -136,7 +136,7 @@ const Header = () => (
             <FileText size={32} />
         </div>
         <div>
-            <h1 className="text-gradient" style={{ margin: 0 }}>Resume AI Scanner</h1>
+            <h1 className="text-gradient responsive-h1" style={{ margin: 0 }}>Resume AI Scanner</h1>
             <p style={{ margin: 0 }}>Get comprehensive feedback & interview prep.</p>
         </div>
     </div>
@@ -147,7 +147,7 @@ const UploadView = ({ file, handleFileChange, fileInputRef, targetRole, setTarge
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="glass-panel"
-        style={{ maxWidth: '600px', margin: '0 auto', padding: '2.5rem' }}
+        style={{ maxWidth: '600px', margin: '0 auto' }}
     >
         <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Upload Your Resume</h2>
 
@@ -169,7 +169,7 @@ const UploadView = ({ file, handleFileChange, fileInputRef, targetRole, setTarge
             style={{
                 border: '2px dashed var(--glass-border)',
                 borderRadius: '16px',
-                padding: '3rem',
+                padding: '2rem 1rem',
                 textAlign: 'center',
                 cursor: 'pointer',
                 background: 'rgba(255,255,255,0.02)',
@@ -246,10 +246,10 @@ const AnalysisResultView = ({ data, onReUpload }) => (
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="glass-panel"
-                style={{ padding: '1.5rem', textAlign: 'center', borderTop: `4px solid ${getScoreColor(data.matchScore)}` }}
+                style={{ textAlign: 'center', borderTop: `4px solid ${getScoreColor(data.matchScore)}` }}
             >
                 <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Match Score</div>
-                <div style={{ fontSize: '3.5rem', fontWeight: 800, color: 'white' }}>{data.matchScore}%</div>
+                <div className="responsive-h1" style={{ fontWeight: 800, color: 'white' }}>{data.matchScore}%</div>
                 <div style={{ fontSize: '0.8rem', color: getScoreColor(data.matchScore) }}>
                     {data.matchScore > 80 ? 'Excellent Match!' : data.matchScore > 60 ? 'Good Potential' : 'Needs Improvement'}
                 </div>
