@@ -1,12 +1,22 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const Interview = require('../models/Interview');
 const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
+const model = genAI.getGenerativeModel({ 
+    model: 'gemini-1.5-flash',
+    generationConfig: { responseMimeType: "application/json" }
+});
+
+const safetySettings = [
+    {
+      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    },
+];
 
 /**
  * @desc    Start a new Mock Interview Session
@@ -40,10 +50,11 @@ router.post('/start', protect, async (req, res) => {
       Output ONLY the question text.
     `;
 
-        // Basic rate limit: 200ms delay
-        await new Promise(r => setTimeout(r, 200));
-        const result = await model.generateContent(prompt);
-        const question = result.response.text();
+        const result = await model.generateContent({
+             contents: [{ role: 'user', parts: [{ text: prompt }] }],
+             generationConfig: { responseMimeType: "text/plain" } // Override for this specific prompt
+        });
+        const question = result.response.text().trim();
 
         // Save system prompt (optional) & AI question
         interview.conversation.push({
@@ -81,9 +92,8 @@ router.post('/:id/answer', protect, async (req, res) => {
         interview.conversation.push({ role: 'user', content: userAnswer });
 
         // AI Context Construction
-        // We send last few exchanges to maintain context
         const historyContext = interview.conversation
-            .slice(-6) // Last 3 turns
+            .slice(-6) 
             .map((msg) => `${msg.role === 'ai' ? 'Interviewer' : 'Candidate'}: ${msg.content}`)
             .join('\n');
 
@@ -102,44 +112,40 @@ router.post('/:id/answer', protect, async (req, res) => {
       Output JSON ONLY:
       {
         "feedback": {
-          "confidenceScore": 85,
-          "communicationScore": 90,
-          "accuracyScore": 80,
-          "tips": ["Good explanation", "Speak likely slower"]
+          "confidenceScore": number,
+          "communicationScore": number,
+          "accuracyScore": number,
+          "tips": ["tip1", "tip2"]
         },
-        "nextQuestion": "Now, can you explain..."
+        "nextQuestion": "string"
       }
     `;
 
-        // Basic rate limit: 200ms delay
-        await new Promise(r => setTimeout(r, 200));
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
-        let jsonString = responseText;
-        const codeBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
-        if (codeBlockMatch) {
-            jsonString = codeBlockMatch[1];
-        } else {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) jsonString = jsonMatch[0];
-            else throw new Error('Invalid AI response - No JSON found');
+        
+        let aiData;
+        try {
+            // Robust JSON extraction
+            const jsonStr = responseText.includes('```json') 
+                ? responseText.match(/```json\s*([\s\S]*?)\s*```/)[1]
+                : responseText.match(/\{[\s\S]*\}/)[0];
+            aiData = JSON.parse(jsonStr);
+        } catch (parseError) {
+            console.error('JSON Parse Error:', responseText);
+            throw new Error('AI failed to provide valid feedback structure');
         }
 
-        const aiData = JSON.parse(jsonString);
-
-        // Update conversation with user feedback and new AI question
-        // 1. Update user message with feedback scores
+        // Update conversation
         const userMsgIndex = interview.conversation.length - 1;
         interview.conversation[userMsgIndex].feedback = aiData.feedback;
 
-        // 2. Add AI next question
         interview.conversation.push({
             role: 'ai',
             content: aiData.nextQuestion,
         });
 
         await interview.save();
-
         res.json(aiData);
     } catch (error) {
         console.error('Answer submission error:', error);
@@ -161,7 +167,6 @@ router.post('/:id/end', protect, async (req, res) => {
         const interview = await Interview.findById(req.params.id);
         if (!interview) return res.status(404).json({ message: 'Interview not found' });
 
-        // Generate Final Report
         const transcript = interview.conversation
             .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
             .join('\n');
@@ -172,29 +177,26 @@ router.post('/:id/end', protect, async (req, res) => {
       
       Output JSON ONLY:
       {
-        "overallScore": 85,
-        "feedback": "Strong technical skills...",
-        "strengths": ["React hooks", "System design"],
-        "weaknesses": ["Database indexing"],
-        "actionPlan": ["Study B-Trees", "Practice mock mocks"]
+        "overallScore": number,
+        "feedback": "string",
+        "strengths": ["string"],
+        "weaknesses": ["string"],
+        "actionPlan": ["string"]
       }
     `;
 
-        // Basic rate limit: 200ms delay
-        await new Promise(r => setTimeout(r, 200));
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
-        let jsonString = responseText;
-        const codeBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
-        if (codeBlockMatch) {
-            jsonString = codeBlockMatch[1];
-        } else {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) jsonString = jsonMatch[0];
-            else throw new Error('Invalid AI report - No JSON found');
+        
+        let report;
+        try {
+            const jsonStr = responseText.includes('```json') 
+                ? responseText.match(/```json\s*([\s\S]*?)\s*```/)[1]
+                : responseText.match(/\{[\s\S]*\}/)[0];
+            report = JSON.parse(jsonStr);
+        } catch (parseError) {
+            throw new Error('AI failed to generate report JSON');
         }
-
-        const report = JSON.parse(jsonString);
 
         interview.status = 'completed';
         interview.summary = report;
@@ -212,3 +214,4 @@ router.post('/:id/end', protect, async (req, res) => {
 });
 
 module.exports = router;
+

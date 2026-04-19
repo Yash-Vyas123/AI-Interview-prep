@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const pdf = require('pdf-parse');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
 const Resume = require('../models/Resume');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -12,7 +12,17 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // AI Setup
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
+const model = genAI.getGenerativeModel({ 
+    model: 'gemini-1.5-flash',
+    generationConfig: { responseMimeType: "application/json" }
+});
+
+const safetySettings = [
+    {
+      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+      threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+    },
+];
 
 /**
  * @desc    Analyze Resume & Generate Interview Questions
@@ -67,45 +77,41 @@ router.post('/analyze', protect, upload.single('resume'), async (req, res) => {
       
       OUTPUT JSON ONLY:
       {
-        "matchScore": 85,
+        "matchScore": number,
         "skills": {
-          "strong": ["React", "Node.js"],
-          "moderate": ["Docker"],
-          "missing": ["GraphQL", "AWS"]
+          "strong": ["string"],
+          "moderate": ["string"],
+          "missing": ["string"]
         },
         "projects": [
-          { "name": "E-com App", "description": "Built using MERN...", "techStack": ["MongoDB", "Express"] }
+          { "name": "string", "description": "string", "techStack": ["string"] }
         ],
         "generatedQuestions": [
-          { "question": "Explain Redux flow...", "type": "Technical", "context": "Since you know React" },
-          { "question": "How did you handle scaling in E-com App?", "type": "Project-based", "context": "Regarding your E-com App" }
+          { "question": "string", "type": "Technical|Project-based|Behavioral", "context": "string" }
         ]
       }
     `;
 
         // 3. Generate Content
         console.log('🤖 Sending to Gemini...');
-        // Basic rate limit: 200ms delay
-        await new Promise(r => setTimeout(r, 200));
-        const result = await model.generateContent(prompt);
+        const result = await model.generateContent({
+             contents: [{ role: 'user', parts: [{ text: prompt }] }],
+             safetySettings
+        });
         const responseText = result.response.text();
         console.log('✅ Gemini Response Received');
 
         // Improve JSON extraction
-        let jsonString = responseText;
-        const codeBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
-        if (codeBlockMatch) {
-            jsonString = codeBlockMatch[1];
-        } else {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                jsonString = jsonMatch[0];
-            } else {
-                throw new Error('AI failed to return valid JSON');
-            }
+        let analysis;
+        try {
+            const jsonStr = responseText.includes('```json') 
+                ? responseText.match(/```json\s*([\s\S]*?)\s*```/)[1]
+                : responseText.match(/\{[\s\S]*\}/)[0];
+            analysis = JSON.parse(jsonStr);
+        } catch (parseError) {
+            console.error('JSON Parse Error:', responseText);
+            throw new Error('AI failed to return valid analysis JSON');
         }
-
-        const analysis = JSON.parse(jsonString);
 
         // 4. Save to DB
         const resumeEntry = await Resume.create({
@@ -140,3 +146,4 @@ router.get('/', protect, async (req, res) => {
 });
 
 module.exports = router;
+
